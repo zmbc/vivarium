@@ -17,7 +17,9 @@ class Population:
         self.colors = builder.configuration.population.colors
 
         columns_created = ["color", "entrance_time"]
-        builder.population.initializes_simulants(self.on_initialize_simulants, columns_created)
+        builder.population.initializes_simulants(
+            self.on_initialize_simulants, columns_created
+        )
         self.population_view = builder.population.get_view(columns_created)
 
     def on_initialize_simulants(self, pop_data):

@@ -65,7 +65,14 @@ class DuplicatedConfigurationError(ConfigurationError):
 
     """
 
-    def __init__(self, message: str, name: str, layer: Optional[str], source: Optional[str], value: Any):
+    def __init__(
+        self,
+        message: str,
+        name: str,
+        layer: Optional[str],
+        source: Optional[str],
+        value: Any,
+    ):
         self.layer = layer
         self.source = source
         self.value = value
@@ -187,16 +194,24 @@ class ConfigNode:
 
         """
         if self._frozen:
-            raise ConfigurationError(f"Frozen ConfigNode {self.name} does not support assignment.", self.name)
+            raise ConfigurationError(
+                f"Frozen ConfigNode {self.name} does not support assignment.", self.name
+            )
 
         layer = layer if layer else self._layers[-1]
 
         if layer not in self._layers:
-            raise ConfigurationKeyError(f"No layer {layer} in ConfigNode {self.name}.", self.name)
+            raise ConfigurationKeyError(
+                f"No layer {layer} in ConfigNode {self.name}.", self.name
+            )
         elif layer in self._values:
             source, value = self._values[layer]
             raise DuplicatedConfigurationError(
-                f"Value has already been set at layer {layer}.", name=self.name, layer=layer, source=source, value=value
+                f"Value has already been set at layer {layer}.",
+                name=self.name,
+                layer=layer,
+                source=source,
+                value=value,
             )
         else:
             self._values[layer] = (source, value)
@@ -225,7 +240,9 @@ class ConfigNode:
             if layer in self._values:
                 return self._values[layer]
 
-        raise ConfigurationKeyError(f"No value stored in this ConfigNode {self.name}.", self.name)
+        raise ConfigurationKeyError(
+            f"No value stored in this ConfigNode {self.name}.", self.name
+        )
 
     def __bool__(self):
         return bool(self._values)
@@ -252,7 +269,12 @@ class ConfigTree:
 
     """
 
-    def __init__(self, data: Union[Dict, str, Path, "ConfigTree"] = None, layers: List[str] = None, name: str = ""):
+    def __init__(
+        self,
+        data: Union[Dict, str, Path, "ConfigTree"] = None,
+        layers: List[str] = None,
+        name: str = "",
+    ):
         """
         Parameters
         ----------
@@ -361,7 +383,12 @@ class ConfigTree:
         else:
             return child
 
-    def update(self, data: Union[Dict, str, Path, "ConfigTree", None], layer: str = None, source: str = None):
+    def update(
+        self,
+        data: Union[Dict, str, Path, "ConfigTree", None],
+        layer: str = None,
+        source: str = None,
+    ):
         """Adds additional data into the :class:`ConfigTree`.
 
         Parameters
@@ -411,11 +438,15 @@ class ConfigTree:
         raise ConfigurationKeyError(f"No configuration value with name {name}", name)
 
     @staticmethod
-    def _coerce(data: Union[Dict, str, Path, "ConfigTree"], source: Union[str, None]) -> Tuple[Dict, Union[str, None]]:
+    def _coerce(
+        data: Union[Dict, str, Path, "ConfigTree"], source: Union[str, None]
+    ) -> Tuple[Dict, Union[str, None]]:
         """Coerces data into dictionary format."""
         if isinstance(data, dict):
             return data, source
-        elif (isinstance(data, str) and data.endswith((".yaml", ".yml"))) or isinstance(data, Path):
+        elif (isinstance(data, str) and data.endswith((".yaml", ".yml"))) or isinstance(
+            data, Path
+        ):
             source = source if source else str(data)
             with open(data) as f:
                 data = f.read()
@@ -433,7 +464,9 @@ class ConfigTree:
                 value_name=None,
             )
 
-    def _set_with_metadata(self, name: str, value: Any, layer: Optional[str], source: Optional[str]):
+    def _set_with_metadata(
+        self, name: str, value: Any, layer: Optional[str], source: Optional[str]
+    ):
         """Set a value in the named layer with the given source.
 
         Parameters
@@ -462,14 +495,19 @@ class ConfigTree:
 
         """
         if self._frozen:
-            raise ConfigurationError(f"Frozen ConfigTree {self._name} does not support assignment.", self._name)
+            raise ConfigurationError(
+                f"Frozen ConfigTree {self._name} does not support assignment.",
+                self._name,
+            )
 
         if isinstance(value, dict):
             if name not in self:
                 self._children[name] = ConfigTree(layers=list(self._layers), name=name)
             if isinstance(self._children[name], ConfigNode):
                 name = f"{self._name}.{name}" if self._name else name
-                raise ConfigurationError(f"Can't assign a dictionary as a value to a ConfigNode.", name)
+                raise ConfigurationError(
+                    f"Can't assign a dictionary as a value to a ConfigNode.", name
+                )
         else:
             if name not in self:
                 self._children[name] = ConfigNode(list(self._layers), name=self._name)
@@ -483,7 +521,8 @@ class ConfigTree:
         """Set a value on the outermost layer."""
         if name not in self:
             raise ConfigurationKeyError(
-                "New configuration keys can only be created with the update method.", self._name
+                "New configuration keys can only be created with the update method.",
+                self._name,
             )
         self._set_with_metadata(name, value, layer=None, source=None)
 
@@ -491,7 +530,8 @@ class ConfigTree:
         """Set a value on the outermost layer."""
         if name not in self:
             raise ConfigurationKeyError(
-                "New configuration keys can only be created with the update method.", self._name
+                "New configuration keys can only be created with the update method.",
+                self._name,
             )
         self._set_with_metadata(name, value, layer=None, source=None)
 
@@ -527,10 +567,16 @@ class ConfigTree:
 
     def __repr__(self):
         return "\n".join(
-            ["{}:\n    {}".format(name, repr(c).replace("\n", "\n    ")) for name, c in self._children.items()]
+            [
+                "{}:\n    {}".format(name, repr(c).replace("\n", "\n    "))
+                for name, c in self._children.items()
+            ]
         )
 
     def __str__(self):
         return "\n".join(
-            ["{}:\n    {}".format(name, str(c).replace("\n", "\n    ")) for name, c in self._children.items()]
+            [
+                "{}:\n    {}".format(name, str(c).replace("\n", "\n    "))
+                for name, c in self._children.items()
+            ]
         )

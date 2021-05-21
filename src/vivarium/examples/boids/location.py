@@ -19,7 +19,9 @@ class Location:
         self.height = builder.configuration.location.height
 
         columns_created = ["x", "vx", "y", "vy"]
-        builder.population.initializes_simulants(self.on_create_simulants, columns_created)
+        builder.population.initializes_simulants(
+            self.on_create_simulants, columns_created
+        )
         self.population_view = builder.population.get_view(columns_created)
 
     def on_create_simulants(self, pop_data):

@@ -16,18 +16,23 @@ class Risk:
     def setup(self, builder):
         proportion_exposed = builder.configuration[self.name].proportion_exposed
         self.base_exposure_threshold = builder.value.register_value_producer(
-            f"{self.name}.base_proportion_exposed", source=lambda index: pd.Series(proportion_exposed, index=index)
+            f"{self.name}.base_proportion_exposed",
+            source=lambda index: pd.Series(proportion_exposed, index=index),
         )
         self.exposure_threshold = builder.value.register_value_producer(
             f"{self.name}.proportion_exposed", source=self.base_exposure_threshold
         )
 
-        self.exposure = builder.value.register_value_producer(f"{self.name}.exposure", source=self._exposure)
+        self.exposure = builder.value.register_value_producer(
+            f"{self.name}.exposure", source=self._exposure
+        )
         self.randomness = builder.randomness.get_stream(self.name)
 
         columns_created = [f"{self.name}_propensity"]
         builder.population.initializes_simulants(
-            self.on_initialize_simulants, creates_columns=columns_created, requires_streams=[self.name]
+            self.on_initialize_simulants,
+            creates_columns=columns_created,
+            requires_streams=[self.name],
         )
         self.population_view = builder.population.get_view(columns_created)
 
@@ -55,19 +60,27 @@ class DirectEffect:
         self.risk = risk
         self.disease_rate = disease_rate
         self.name = f"effect_of_{risk}_on_{disease_rate}"
-        self.configuration_defaults = {self.name: DirectEffect.configuration_defaults["direct_effect"]}
+        self.configuration_defaults = {
+            self.name: DirectEffect.configuration_defaults["direct_effect"]
+        }
 
     def setup(self, builder):
         relative_risk = builder.configuration[self.name].relative_risk
         self.relative_risk = builder.value.register_value_producer(
-            f"{self.name}.relative_risk", source=lambda index: pd.Series(relative_risk, index=index)
+            f"{self.name}.relative_risk",
+            source=lambda index: pd.Series(relative_risk, index=index),
         )
 
         builder.value.register_value_modifier(
-            f"{self.disease_rate}.population_attributable_fraction", self.population_attributable_fraction
+            f"{self.disease_rate}.population_attributable_fraction",
+            self.population_attributable_fraction,
         )
-        builder.value.register_value_modifier(f"{self.disease_rate}", self.rate_adjustment)
-        self.base_risk_exposure = builder.value.get_value(f"{self.risk}.base_proportion_exposed")
+        builder.value.register_value_modifier(
+            f"{self.disease_rate}", self.rate_adjustment
+        )
+        self.base_risk_exposure = builder.value.get_value(
+            f"{self.risk}.base_proportion_exposed"
+        )
         self.actual_risk_exposure = builder.value.get_value(f"{self.risk}.exposure")
 
     def population_attributable_fraction(self, index):

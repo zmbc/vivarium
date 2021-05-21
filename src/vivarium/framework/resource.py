@@ -31,7 +31,14 @@ class ResourceError(VivariumError):
     pass
 
 
-RESOURCE_TYPES = {"value", "value_source", "missing_value_source", "value_modifier", "column", "stream"}
+RESOURCE_TYPES = {
+    "value",
+    "value_source",
+    "missing_value_source",
+    "value_modifier",
+    "column",
+    "stream",
+}
 NULL_RESOURCE_TYPE = "null"
 
 
@@ -47,7 +54,13 @@ class ResourceGroup:
 
     """
 
-    def __init__(self, resource_type: str, resource_names: List[str], producer: Callable, dependencies: List[str]):
+    def __init__(
+        self,
+        resource_type: str,
+        resource_names: List[str],
+        producer: Callable,
+        dependencies: List[str],
+    ):
         self._resource_type = resource_type
         self._resource_names = resource_names
         self._producer = producer
@@ -133,10 +146,19 @@ class ResourceManager:
             try:
                 self._sorted_nodes = list(nx.algorithms.topological_sort(self.graph))
             except nx.NetworkXUnfeasible:
-                raise ResourceError(f"The resource pool contains at least one cycle: " f"{nx.find_cycle(self.graph)}.")
+                raise ResourceError(
+                    f"The resource pool contains at least one cycle: "
+                    f"{nx.find_cycle(self.graph)}."
+                )
         return self._sorted_nodes
 
-    def add_resources(self, resource_type: str, resource_names: List[str], producer: Any, dependencies: List[str]):
+    def add_resources(
+        self,
+        resource_type: str,
+        resource_names: List[str],
+        producer: Any,
+        dependencies: List[str],
+    ):
         """Adds managed resources to the resource pool.
 
         Parameters
@@ -161,20 +183,30 @@ class ResourceManager:
 
         """
         if resource_type not in RESOURCE_TYPES:
-            raise ResourceError(f"Unknown resource type {resource_type}. " f"Permitted types are {RESOURCE_TYPES}.")
+            raise ResourceError(
+                f"Unknown resource type {resource_type}. "
+                f"Permitted types are {RESOURCE_TYPES}."
+            )
 
-        resource_group = self._get_resource_group(resource_type, resource_names, producer, dependencies)
+        resource_group = self._get_resource_group(
+            resource_type, resource_names, producer, dependencies
+        )
 
         for resource in resource_group:
             if resource in self._resource_group_map:
                 other_producer = self._resource_group_map[resource].producer
                 raise ResourceError(
-                    f"Both {producer} and {other_producer} are registered as " f"producers for {resource}."
+                    f"Both {producer} and {other_producer} are registered as "
+                    f"producers for {resource}."
                 )
             self._resource_group_map[resource] = resource_group
 
     def _get_resource_group(
-        self, resource_type: str, resource_names: List[str], producer: MethodType, dependencies: List[str]
+        self,
+        resource_type: str,
+        resource_names: List[str],
+        producer: MethodType,
+        dependencies: List[str],
     ) -> ResourceGroup:
         """Packages resource information into a resource group.
 
@@ -236,14 +268,22 @@ class ResourceManager:
         creation time.
 
         """
-        return iter([r.producer for r in self.sorted_nodes if r.type in {"column", NULL_RESOURCE_TYPE}])
+        return iter(
+            [
+                r.producer
+                for r in self.sorted_nodes
+                if r.type in {"column", NULL_RESOURCE_TYPE}
+            ]
+        )
 
     def __repr__(self):
         out = {}
         for resource_group in set(self._resource_group_map.values()):
             produced = ", ".join(resource_group)
             out[produced] = ", ".join(resource_group.dependencies)
-        return "\n".join([f"{produced} : {depends}" for produced, depends in out.items()])
+        return "\n".join(
+            [f"{produced} : {depends}" for produced, depends in out.items()]
+        )
 
 
 class ResourceInterface:
@@ -267,7 +307,13 @@ class ResourceInterface:
     def __init__(self, manager: ResourceManager):
         self._manager = manager
 
-    def add_resources(self, resource_type: str, resource_names: List[str], producer: Any, dependencies: List[str]):
+    def add_resources(
+        self,
+        resource_type: str,
+        resource_names: List[str],
+        producer: Any,
+        dependencies: List[str],
+    ):
         """Adds managed resources to the resource pool.
 
         Parameters
@@ -291,7 +337,9 @@ class ResourceInterface:
             there are multiple producers of the same resource.
 
         """
-        self._manager.add_resources(resource_type, resource_names, producer, dependencies)
+        self._manager.add_resources(
+            resource_type, resource_names, producer, dependencies
+        )
 
     def __iter__(self):
         """Returns a dependency-sorted iterable of population initializers.

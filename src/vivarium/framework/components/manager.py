@@ -47,7 +47,9 @@ class OrderedComponentSet:
 
     def add(self, component: Any):
         if component in self:
-            raise ComponentConfigError(f"Attempting to add a component with duplicate name: {component}")
+            raise ComponentConfigError(
+                f"Attempting to add a component with duplicate name: {component}"
+            )
         self.components.append(component)
 
     def update(self, components: Union[List[Any], Tuple[Any]]):
@@ -77,7 +79,9 @@ class OrderedComponentSet:
 
     def __eq__(self, other: "OrderedComponentSet") -> bool:
         try:
-            return type(self) is type(other) and [c.name for c in self.components] == [c.name for c in other.components]
+            return type(self) is type(other) and [c.name for c in self.components] == [
+                c.name for c in other.components
+            ]
         except TypeError:
             return False
 
@@ -122,10 +126,15 @@ class ComponentManager:
         self.lifecycle = lifecycle_manager
 
         self.lifecycle.add_constraint(
-            self.get_components_by_type, restrict_during=["initialization", "population_creation"]
+            self.get_components_by_type,
+            restrict_during=["initialization", "population_creation"],
         )
-        self.lifecycle.add_constraint(self.get_component, restrict_during=["population_creation"])
-        self.lifecycle.add_constraint(self.list_components, restrict_during=["initialization"])
+        self.lifecycle.add_constraint(
+            self.get_component, restrict_during=["population_creation"]
+        )
+        self.lifecycle.add_constraint(
+            self.list_components, restrict_during=["initialization"]
+        )
 
     def add_managers(self, managers: Union[List[Any], Tuple[Any]]):
         """Registers new managers with the component manager.
@@ -157,7 +166,9 @@ class ComponentManager:
             self.apply_configuration_defaults(c)
             self._components.add(c)
 
-    def get_components_by_type(self, component_type: Union[type, Tuple[type, ...]]) -> List[Any]:
+    def get_components_by_type(
+        self, component_type: Union[type, Tuple[type, ...]]
+    ) -> List[Any]:
         """Get all components that are an instance of ``component_type``.
 
         Parameters
@@ -232,7 +243,9 @@ class ComponentManager:
             return
         try:
             self.configuration.update(
-                component.configuration_defaults, layer="component_configs", source=component.name
+                component.configuration_defaults,
+                layer="component_configs",
+                source=component.name,
             )
         except DuplicatedConfigurationError as e:
             new_name, new_file = component.name, self._get_file(component)
@@ -312,7 +325,9 @@ class ComponentInterface:
         """
         return self._manager.get_component(name)
 
-    def get_components_by_type(self, component_type: Union[type, Tuple[type, ...]]) -> List[Any]:
+    def get_components_by_type(
+        self, component_type: Union[type, Tuple[type, ...]]
+    ) -> List[Any]:
         """Get all components that are an instance of ``component_type``.
 
         Parameters

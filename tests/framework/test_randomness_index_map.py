@@ -52,7 +52,9 @@ def id_fun(param):
     return f"Size:{param[0]}, Types:{param[1]}, Seed:{param[2]}"
 
 
-@pytest.fixture(scope="module", params=list(product(index_sizes, types, seeds)), ids=id_fun)
+@pytest.fixture(
+    scope="module", params=list(product(index_sizes, types, seeds)), ids=id_fun
+)
 def map_size_and_hashed_values(request):
     keys = generate_keys(*request.param)
     m = IndexMap()
@@ -83,7 +85,11 @@ def test_clip_to_seconds_scalar():
 def test_clip_to_seconds_series():
     m = IndexMap()
     stamp = 1234567890
-    k = pd.date_range(pd.to_datetime(stamp, unit="s"), periods=10000, freq="ns").to_series().astype(np.int64)
+    k = (
+        pd.date_range(pd.to_datetime(stamp, unit="s"), periods=10000, freq="ns")
+        .to_series()
+        .astype(np.int64)
+    )
     assert len(m.clip_to_seconds(k).unique()) == 1
     assert m.clip_to_seconds(k).unique()[0] == stamp
 
@@ -115,7 +121,9 @@ def test_shift_series():
 def test_convert_to_ten_digit_int():
     m = IndexMap()
     v = 1234567890
-    datetime_col = pd.date_range(pd.to_datetime(v, unit="s"), periods=10000, freq="ns").to_series()
+    datetime_col = pd.date_range(
+        pd.to_datetime(v, unit="s"), periods=10000, freq="ns"
+    ).to_series()
     int_col = pd.Series(v, index=range(10000))
     float_col = pd.Series(1.1234567890, index=range(10000))
     bad_col = pd.Series("a", index=range(10000))
@@ -179,5 +187,9 @@ def test_update(mocker):
     new_unique_keys = generate_keys(1000).difference(keys)
     m.update(new_unique_keys)
     assert len(m) == len(keys) + len(new_unique_keys), "All keys not in mapping"
-    assert m._map.index.difference(keys.union(new_unique_keys)).empty, "All keys not in mapping"
-    assert len(m._map.unique()) == len(keys) + len(new_unique_keys), "Duplicate values in mapping"
+    assert m._map.index.difference(
+        keys.union(new_unique_keys)
+    ).empty, "All keys not in mapping"
+    assert len(m._map.unique()) == len(keys) + len(
+        new_unique_keys
+    ), "Duplicate values in mapping"

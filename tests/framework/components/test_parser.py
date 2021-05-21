@@ -76,7 +76,9 @@ def components(request):
 
 @pytest.fixture
 def import_and_instantiate_mock(mocker):
-    return mocker.patch("vivarium.framework.components.parser.import_and_instantiate_components")
+    return mocker.patch(
+        "vivarium.framework.components.parser.import_and_instantiate_components"
+    )
 
 
 def test_parse_component_config(components):
@@ -115,11 +117,19 @@ def test_parse_and_prep_components(components):
 
 
 def test_import_and_instantiate_components(monkeypatch):
-    monkeypatch.setattr("vivarium.framework.components.parser.import_by_path", mock_importer)
+    monkeypatch.setattr(
+        "vivarium.framework.components.parser.import_by_path", mock_importer
+    )
 
     component_descriptions = [
-        ("test_components.MockComponentA", ("A Hundred and One Ways to Start a Fight",)),
-        ("test_components.MockComponentB", ("Ethel the Aardvark goes Quantity Surveying",)),
+        (
+            "test_components.MockComponentA",
+            ("A Hundred and One Ways to Start a Fight",),
+        ),
+        (
+            "test_components.MockComponentB",
+            ("Ethel the Aardvark goes Quantity Surveying",),
+        ),
     ]
     component_list = import_and_instantiate_components(component_descriptions)
 
@@ -130,7 +140,9 @@ def test_import_and_instantiate_components(monkeypatch):
     assert component_list[1].args == ("Ethel the Aardvark goes Quantity Surveying",)
 
 
-def test_ComponentConfigurationParser_get_components(import_and_instantiate_mock, components):
+def test_ComponentConfigurationParser_get_components(
+    import_and_instantiate_mock, components
+):
     config = build_simulation_configuration()
     config.update(components)
 

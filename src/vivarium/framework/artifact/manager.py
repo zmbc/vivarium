@@ -39,7 +39,9 @@ class ArtifactManager:
     def setup(self, builder):
         """Performs this component's simulation setup."""
         # because not all columns are accessible via artifact filter terms, apply config filters separately
-        self.config_filter_term = validate_filter_term(builder.configuration.input_data.artifact_filter_term)
+        self.config_filter_term = validate_filter_term(
+            builder.configuration.input_data.artifact_filter_term
+        )
         self.artifact = self._load_artifact(builder.configuration)
         builder.lifecycle.add_constraint(self.load, allow_during=["setup"])
 
@@ -91,7 +93,11 @@ class ArtifactManager:
             draw_col = [c for c in data if "draw" in c]
             if draw_col:
                 data = data.rename(columns={draw_col[0]: "value"})
-        return filter_data(data, self.config_filter_term, **column_filters) if isinstance(data, pd.DataFrame) else data
+        return (
+            filter_data(data, self.config_filter_term, **column_filters)
+            if isinstance(data, pd.DataFrame)
+            else data
+        )
 
     def __repr__(self):
         return "ArtifactManager()"
@@ -140,7 +146,9 @@ class ArtifactInterface:
         return "ArtifactManagerInterface()"
 
 
-def filter_data(data: pd.DataFrame, config_filter_term: str = None, **column_filters: _Filter) -> pd.DataFrame:
+def filter_data(
+    data: pd.DataFrame, config_filter_term: str = None, **column_filters: _Filter
+) -> pd.DataFrame:
     """Uses the provided column filters and age_group conditions to subset the raw data."""
     data = _config_filter(data, config_filter_term)
     data = _subset_rows(data, **column_filters)
@@ -158,8 +166,12 @@ def _config_filter(data, config_filter_term):
 
 def validate_filter_term(config_filter_term):
     multiple_filter_indicators = [" and ", " or ", "|", "&"]
-    if config_filter_term is not None and any(x in config_filter_term for x in multiple_filter_indicators):
-        raise NotImplementedError("Only a single filter term via the configuration is currently supported.")
+    if config_filter_term is not None and any(
+        x in config_filter_term for x in multiple_filter_indicators
+    ):
+        raise NotImplementedError(
+            "Only a single filter term via the configuration is currently supported."
+        )
     return config_filter_term
 
 
@@ -167,7 +179,10 @@ def _subset_rows(data: pd.DataFrame, **column_filters: _Filter) -> pd.DataFrame:
     """Filters out unwanted rows from the data using the provided filters."""
     extra_filters = set(column_filters.keys()) - set(data.columns)
     if extra_filters:
-        raise ValueError(f"Filtering by non-existent columns: {extra_filters}. " f"Available columns: {data.columns}")
+        raise ValueError(
+            f"Filtering by non-existent columns: {extra_filters}. "
+            f"Available columns: {data.columns}"
+        )
 
     for column, condition in column_filters.items():
         if column in data.columns:

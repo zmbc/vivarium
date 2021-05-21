@@ -2,7 +2,10 @@ from pathlib import Path
 import pytest
 import tables
 
-from vivarium.framework.configuration import build_simulation_configuration, build_model_specification
+from vivarium.framework.configuration import (
+    build_simulation_configuration,
+    build_model_specification,
+)
 from vivarium.testing_utilities import metadata
 
 

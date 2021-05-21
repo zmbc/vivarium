@@ -14,7 +14,9 @@ class Neighbors:
 
         self.neighbors_calculated = False
         self._neighbors = pd.Series()
-        self.neighbors = builder.value.register_value_producer("neighbors", source=self.get_neighbors)
+        self.neighbors = builder.value.register_value_producer(
+            "neighbors", source=self.get_neighbors
+        )
 
         builder.population.initializes_simulants(self.on_create_simulants)
         self.population_view = builder.population.get_view(["x", "y"])

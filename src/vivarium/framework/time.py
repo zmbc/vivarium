@@ -111,7 +111,9 @@ class DateTimeClock(SimulationClock):
         time = builder.configuration.time
         self._time = get_time_stamp(time.start)
         self._stop_time = get_time_stamp(time.end)
-        self._step_size = pd.Timedelta(days=time.step_size // 1, hours=(time.step_size % 1) * 24)
+        self._step_size = pd.Timedelta(
+            days=time.step_size // 1, hours=(time.step_size % 1) * 24
+        )
 
     def __repr__(self):
         return "DateTimeClock()"

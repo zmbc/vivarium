@@ -37,7 +37,13 @@ if __name__ == "__main__":
         "pytest-mock",
     ]
 
-    doc_requirements = ["sphinx>=4.0", "sphinx-rtd-theme", "sphinx-click", "IPython", "matplotlib"]
+    doc_requirements = [
+        "sphinx>=4.0",
+        "sphinx-rtd-theme",
+        "sphinx-click",
+        "IPython",
+        "matplotlib",
+    ]
 
     setup(
         name=about["__title__"],

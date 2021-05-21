@@ -63,7 +63,9 @@ def log_progress(sequence, every=None, size=None, name="Items"):
                     label.value = "{name}: {index} / ?".format(name=name, index=index)
                 else:
                     progress.value = index
-                    label.value = "{name}: {index} / {size}".format(name=name, index=index, size=size)
+                    label.value = "{name}: {index} / {size}".format(
+                        name=name, index=index, size=size
+                    )
             yield record
     except Exception as e:
         progress.bar_style = "danger"
@@ -117,9 +119,21 @@ def add_logging_sink(sink, verbose, colorize=False, serialize=False):
         "- <level>{message}</level>"
     )
     if verbose:
-        logger.add(sink, colorize=colorize, level="DEBUG", format=message_format, serialize=serialize)
+        logger.add(
+            sink,
+            colorize=colorize,
+            level="DEBUG",
+            format=message_format,
+            serialize=serialize,
+        )
     else:
-        logger.add(sink, colorize=colorize, level="ERROR", format=message_format, serialize=serialize)
+        logger.add(
+            sink,
+            colorize=colorize,
+            level="ERROR",
+            format=message_format,
+            serialize=serialize,
+        )
 
 
 def configure_logging_to_terminal(verbose):

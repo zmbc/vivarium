@@ -42,7 +42,11 @@ from loguru import logger
 from vivarium.examples import disease_model
 from vivarium.framework.engine import run_simulation
 from vivarium.framework.utilities import handle_exceptions
-from .utilities import get_output_root, configure_logging_to_file, configure_logging_to_terminal
+from .utilities import (
+    get_output_root,
+    configure_logging_to_file,
+    configure_logging_to_terminal,
+)
 
 
 @click.group()
@@ -57,9 +61,17 @@ def simulate():
 
 
 @simulate.command()
-@click.argument("model_specification", type=click.Path(exists=True, dir_okay=False, resolve_path=True))
+@click.argument(
+    "model_specification",
+    type=click.Path(exists=True, dir_okay=False, resolve_path=True),
+)
 @click.option("--location", "-l", help="Location to run the simulation in.")
-@click.option("--artifact_path", "-i", type=click.Path(resolve_path=True), help="The path to the artifact data file.")
+@click.option(
+    "--artifact_path",
+    "-i",
+    type=click.Path(resolve_path=True),
+    help="The path to the artifact data file.",
+)
 @click.option(
     "--results_directory",
     "-o",
@@ -69,7 +81,12 @@ def simulate():
     "in this directory with the same name as the configuration file.",
 )
 @click.option("--verbose", "-v", is_flag=True, help="Report each time step.")
-@click.option("--pdb", "with_debugger", is_flag=True, help="Drop into python debugger if an error occurs.")
+@click.option(
+    "--pdb",
+    "with_debugger",
+    is_flag=True,
+    help="Drop into python debugger if an error occurs.",
+)
 def run(
     model_specification: Path,
     location: str,
@@ -129,7 +146,10 @@ def test():
 
 
 @simulate.command()
-@click.argument("model_specification", type=click.Path(exists=True, dir_okay=False, resolve_path=True))
+@click.argument(
+    "model_specification",
+    type=click.Path(exists=True, dir_okay=False, resolve_path=True),
+)
 @click.option(
     "--results_directory",
     "-o",
@@ -153,9 +173,13 @@ def profile(model_specification, results_directory, process):
     model_specification = Path(model_specification)
     results_directory = Path(results_directory)
 
-    out_stats_file = results_directory / f"{model_specification.name}".replace("yaml", "stats")
+    out_stats_file = results_directory / f"{model_specification.name}".replace(
+        "yaml", "stats"
+    )
     command = f'run_simulation("{model_specification}")'
-    cProfile.runctx(command, globals=globals(), locals=locals(), filename=out_stats_file)
+    cProfile.runctx(
+        command, globals=globals(), locals=locals(), filename=out_stats_file
+    )
 
     if process:
         out_txt_file = results_directory / (out_stats_file.name + ".txt")

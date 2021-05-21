@@ -44,9 +44,13 @@ class BasePopulation:
 
         self.with_common_random_numbers = bool(self.config.randomness.key_columns)
         self.register = builder.randomness.register_simulants
-        if self.with_common_random_numbers and not ["entrance_time", "age"] == self.config.randomness.key_columns:
+        if (
+            self.with_common_random_numbers
+            and not ["entrance_time", "age"] == self.config.randomness.key_columns
+        ):
             raise ValueError(
-                "If running with CRN, you must specify ['entrance_time', 'age'] as" "the randomness key columns."
+                "If running with CRN, you must specify ['entrance_time', 'age'] as"
+                "the randomness key columns."
             )
 
         self.age_randomness = builder.randomness.get_stream(
@@ -55,7 +59,9 @@ class BasePopulation:
         self.sex_randomness = builder.randomness.get_stream("sex_initialization")
 
         columns_created = ["age", "sex", "alive", "entrance_time"]
-        builder.population.initializes_simulants(self.on_initialize_simulants, creates_columns=columns_created)
+        builder.population.initializes_simulants(
+            self.on_initialize_simulants, creates_columns=columns_created
+        )
 
         self.population_view = builder.population.get_view(columns_created)
 
@@ -99,16 +105,21 @@ class BasePopulation:
 
         if self.with_common_random_numbers:
             population = pd.DataFrame(
-                {"entrance_time": pop_data.creation_time, "age": age.values}, index=pop_data.index
+                {"entrance_time": pop_data.creation_time, "age": age.values},
+                index=pop_data.index,
             )
             self.register(population)
-            population["sex"] = self.sex_randomness.choice(pop_data.index, ["Male", "Female"])
+            population["sex"] = self.sex_randomness.choice(
+                pop_data.index, ["Male", "Female"]
+            )
             population["alive"] = "alive"
         else:
             population = pd.DataFrame(
                 {
                     "age": age.values,
-                    "sex": self.sex_randomness.choice(pop_data.index, ["Male", "Female"]),
+                    "sex": self.sex_randomness.choice(
+                        pop_data.index, ["Male", "Female"]
+                    ),
                     "alive": pd.Series("alive", index=pop_data.index),
                     "entrance_time": pop_data.creation_time,
                 },

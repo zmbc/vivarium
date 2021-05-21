@@ -38,30 +38,48 @@ def test_subset_rows_extra_filters():
 
 
 def test_subset_rows():
-    values = [lambda *args, **kwargs: random.choice(["red", "blue"]), lambda *args, **kwargs: random.choice([1, 2, 3])]
-    data = build_table(values, 1990, 2010, columns=("age", "year", "sex", "color", "number"))
+    values = [
+        lambda *args, **kwargs: random.choice(["red", "blue"]),
+        lambda *args, **kwargs: random.choice([1, 2, 3]),
+    ]
+    data = build_table(
+        values, 1990, 2010, columns=("age", "year", "sex", "color", "number")
+    )
 
     filtered_data = _subset_rows(data, color="red", number=3)
     assert filtered_data.equals(data[(data.color == "red") & (data.number == 3)])
 
     filtered_data = _subset_rows(data, color="red", number=[2, 3])
-    assert filtered_data.equals(data[(data.color == "red") & ((data.number == 2) | (data.number == 3))])
+    assert filtered_data.equals(
+        data[(data.color == "red") & ((data.number == 2) | (data.number == 3))]
+    )
 
 
 def test_subset_columns():
     values = [0, "red", 100]
-    data = build_table(values, 1990, 2010, columns=("age", "year", "sex", "draw", "color", "value"))
+    data = build_table(
+        values, 1990, 2010, columns=("age", "year", "sex", "draw", "color", "value")
+    )
 
     filtered_data = _subset_columns(data)
-    assert filtered_data.equals(data[["age_start", "age_end", "year_start", "year_end", "sex", "color", "value"]])
+    assert filtered_data.equals(
+        data[
+            ["age_start", "age_end", "year_start", "year_end", "sex", "color", "value"]
+        ]
+    )
 
     filtered_data = _subset_columns(data, color="red")
-    assert filtered_data.equals(data[["age_start", "age_end", "year_start", "year_end", "sex", "value"]])
+    assert filtered_data.equals(
+        data[["age_start", "age_end", "year_start", "year_end", "sex", "value"]]
+    )
 
 
 def test_parse_artifact_path_config(base_config, test_data_dir):
     artifact_path = test_data_dir / "artifact.hdf"
-    base_config.update({"input_data": {"artifact_path": str(artifact_path)}}, **metadata(str(Path("/"))))
+    base_config.update(
+        {"input_data": {"artifact_path": str(artifact_path)}},
+        **metadata(str(Path("/")))
+    )
 
     assert parse_artifact_path_config(base_config) == str(artifact_path)
 
@@ -75,20 +93,30 @@ def test_parse_artifact_path_relative_no_source(base_config):
 
 
 def test_parse_artifact_path_relative(base_config, test_data_dir):
-    base_config.update({"input_data": {"artifact_path": "../../test_data/artifact.hdf"}}, **metadata(__file__))
-    assert parse_artifact_path_config(base_config) == str(test_data_dir / "artifact.hdf")
+    base_config.update(
+        {"input_data": {"artifact_path": "../../test_data/artifact.hdf"}},
+        **metadata(__file__)
+    )
+    assert parse_artifact_path_config(base_config) == str(
+        test_data_dir / "artifact.hdf"
+    )
 
 
 def test_parse_artifact_path_config_fail(base_config):
     artifact_path = Path(__file__).parent / "not_an_artifact.hdf"
-    base_config.update({"input_data": {"artifact_path": str(artifact_path)}}, **metadata(str(Path("/"))))
+    base_config.update(
+        {"input_data": {"artifact_path": str(artifact_path)}},
+        **metadata(str(Path("/")))
+    )
 
     with pytest.raises(FileNotFoundError):
         parse_artifact_path_config(base_config)
 
 
 def test_parse_artifact_path_config_fail_relative(base_config):
-    base_config.update({"input_data": {"artifact_path": "./not_an_artifact.hdf"}}, **metadata(__file__))
+    base_config.update(
+        {"input_data": {"artifact_path": "./not_an_artifact.hdf"}}, **metadata(__file__)
+    )
 
     with pytest.raises(FileNotFoundError):
         parse_artifact_path_config(base_config)

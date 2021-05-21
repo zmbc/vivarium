@@ -38,10 +38,14 @@ def test_joint_value(manager):
     )
     assert np.all(value(index) == 0)
 
-    manager.register_value_modifier("test", modifier=lambda idx: pd.Series(0.5, index=idx))
+    manager.register_value_modifier(
+        "test", modifier=lambda idx: pd.Series(0.5, index=idx)
+    )
     assert np.all(value(index) == 0.5)
 
-    manager.register_value_modifier("test", modifier=lambda idx: pd.Series(0.5, index=idx))
+    manager.register_value_modifier(
+        "test", modifier=lambda idx: pd.Series(0.5, index=idx)
+    )
     assert np.all(value(index) == 0.75)
 
 

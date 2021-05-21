@@ -5,7 +5,11 @@ from vivarium.framework.artifact import ArtifactManager, ArtifactInterface
 from vivarium.framework.event import EventManager, EventInterface
 from vivarium.framework.lifecycle import LifeCycleManager, LifeCycleInterface
 from vivarium.framework.lookup import LookupTableManager, LookupTableInterface
-from vivarium.framework.components import OrderedComponentSet, ComponentManager, ComponentInterface
+from vivarium.framework.components import (
+    OrderedComponentSet,
+    ComponentManager,
+    ComponentInterface,
+)
 from vivarium.framework.metrics import Metrics
 from vivarium.framework.population import PopulationManager, PopulationInterface
 from vivarium.framework.randomness import RandomnessManager, RandomnessInterface
@@ -23,7 +27,11 @@ def is_same_object_method(m1, m2):
 
 @pytest.fixture
 def components():
-    return [MockComponentA("gretchen", "whimsy"), Listener("listener"), MockComponentB("spoon", "antelope", 23)]
+    return [
+        MockComponentA("gretchen", "whimsy"),
+        Listener("listener"),
+        MockComponentB("spoon", "antelope", 23),
+    ]
 
 
 @pytest.fixture
@@ -113,12 +121,23 @@ def test_SimulationContext_setup_default(base_config, components):
         if hasattr(a, "args"):
             assert a.args == b.args
 
-    assert is_same_object_method(sim.simulant_creator, sim._population._create_simulants)
-    assert sim.time_step_events == ["time_step__prepare", "time_step", "time_step__cleanup", "collect_metrics"]
+    assert is_same_object_method(
+        sim.simulant_creator, sim._population._create_simulants
+    )
+    assert sim.time_step_events == [
+        "time_step__prepare",
+        "time_step",
+        "time_step__cleanup",
+        "collect_metrics",
+    ]
     for k in sim.time_step_emitters.keys():
-        assert is_same_object_method(sim.time_step_emitters[k], sim._events._event_types[k].emit)
+        assert is_same_object_method(
+            sim.time_step_emitters[k], sim._events._event_types[k].emit
+        )
 
-    assert is_same_object_method(sim.end_emitter, sim._events._event_types["simulation_end"].emit)
+    assert is_same_object_method(
+        sim.end_emitter, sim._events._event_types["simulation_end"].emit
+    )
 
     assert listener.post_setup_called
 
@@ -178,4 +197,6 @@ def test_SimulationContext_report(base_config, components):
     sim.run()
     sim.finalize()
     metrics = sim.report()
-    assert metrics["test"] == len([c for c in sim._component_manager._components if isinstance(c, MockComponentB)])
+    assert metrics["test"] == len(
+        [c for c in sim._component_manager._components if isinstance(c, MockComponentB)]
+    )

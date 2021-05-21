@@ -112,7 +112,10 @@ def write(path: Union[str, Path], entity_key: str, data: Any):
 
 
 def load(
-    path: Union[str, Path], entity_key: str, filter_terms: Optional[List[str]], column_filters: Optional[List[str]]
+    path: Union[str, Path],
+    entity_key: str,
+    filter_terms: Optional[List[str]],
+    column_filters: Optional[List[str]],
 ) -> Any:
     """Loads data from an HDF file.
 
@@ -153,13 +156,19 @@ def load(
         else:
             filter_terms = _get_valid_filter_terms(filter_terms, node.table.colnames)
             with pd.HDFStore(str(path), complevel=9, mode="r") as store:
-                metadata = store.get_storer(entity_key.path).attrs.metadata  # NOTE: must use attrs. write this up
+                metadata = store.get_storer(
+                    entity_key.path
+                ).attrs.metadata  # NOTE: must use attrs. write this up
 
             if metadata.get("is_empty", False):
                 data = pd.read_hdf(path, entity_key.path, where=filter_terms)
-                data = data.set_index(list(data.columns))  # undoing transform performed on write
+                data = data.set_index(
+                    list(data.columns)
+                )  # undoing transform performed on write
             else:
-                data = pd.read_hdf(path, entity_key.path, where=filter_terms, columns=column_filters)
+                data = pd.read_hdf(
+                    path, entity_key.path, where=filter_terms, columns=column_filters
+                )
 
     return data
 
@@ -227,7 +236,8 @@ class EntityKey(str):
         elements = [e for e in key.split(".") if e]
         if len(elements) not in [2, 3] or len(key.split(".")) != len(elements):
             raise ValueError(
-                f"Invalid format for HDF key: {key}. " 'Acceptable formats are "type.name.measure" and "type.measure"'
+                f"Invalid format for HDF key: {key}. "
+                'Acceptable formats are "type.name.measure" and "type.measure"'
             )
         super().__init__()
 
@@ -259,7 +269,11 @@ class EntityKey(str):
     @property
     def group(self) -> str:
         """The full path to the group for this key."""
-        return self.group_prefix + "/" + self.group_name if self.name else self.group_prefix + self.group_name
+        return (
+            self.group_prefix + "/" + self.group_name
+            if self.name
+            else self.group_prefix + self.group_name
+        )
 
     @property
     def path(self) -> str:
@@ -328,7 +342,9 @@ def _write_pandas_data(path: Path, entity_key: EntityKey, data: Union[PandasObj]
         # format.
         data = data.reset_index()
         if data.empty:
-            raise ValueError("Cannot write an empty dataframe that does not have an index.")
+            raise ValueError(
+                "Cannot write an empty dataframe that does not have an index."
+            )
         metadata = {"is_empty": True}
         data_columns = True
     else:
@@ -337,7 +353,9 @@ def _write_pandas_data(path: Path, entity_key: EntityKey, data: Union[PandasObj]
 
     with pd.HDFStore(str(path), complevel=9) as store:
         store.put(entity_key.path, data, format="table", data_columns=data_columns)
-        store.get_storer(entity_key.path).attrs.metadata = metadata  # NOTE: must use attrs. write this up
+        store.get_storer(
+            entity_key.path
+        ).attrs.metadata = metadata  # NOTE: must use attrs. write this up
 
 
 def _write_json_blob(path: Path, entity_key: EntityKey, data: Any):
@@ -350,7 +368,9 @@ def _write_json_blob(path: Path, entity_key: EntityKey, data: Any):
         if entity_key.group not in store:
             store.create_group(entity_key.group_prefix, entity_key.group_name)
 
-        with filenode.new_node(store, where=entity_key.group, name=entity_key.measure) as fnode:
+        with filenode.new_node(
+            store, where=entity_key.group, name=entity_key.measure
+        ) as fnode:
             fnode.write(bytes(json.dumps(data), "utf-8"))
 
 

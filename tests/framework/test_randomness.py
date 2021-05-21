@@ -3,7 +3,12 @@ import pandas as pd
 import numpy as np
 
 import vivarium.framework.randomness as random
-from vivarium.framework.randomness import RandomnessManager, RandomnessStream, RESIDUAL_CHOICE, RandomnessError
+from vivarium.framework.randomness import (
+    RandomnessManager,
+    RandomnessStream,
+    RESIDUAL_CHOICE,
+    RandomnessError,
+)
 
 
 @pytest.fixture(params=[10 ** 4, 10 ** 5])
@@ -23,7 +28,11 @@ def weights(request):
 
 
 @pytest.fixture(
-    params=[(0.2, 0.1, RESIDUAL_CHOICE), (0.5, 0.6, RESIDUAL_CHOICE), (0.1, RESIDUAL_CHOICE, RESIDUAL_CHOICE)]
+    params=[
+        (0.2, 0.1, RESIDUAL_CHOICE),
+        (0.5, 0.6, RESIDUAL_CHOICE),
+        (0.1, RESIDUAL_CHOICE, RESIDUAL_CHOICE),
+    ]
 )
 def weights_with_residuals(request):
     return request.param
@@ -74,7 +83,11 @@ def test_choice(index, choices, weights):
     chosen = randomness.choice(index, choices, p=weights)
     count = chosen.value_counts()
     # If we have weights, normalize them, otherwise generate uniform weights.
-    weights = [w / sum(weights) for w in weights] if weights else [1 / len(choices) for _ in choices]
+    weights = (
+        [w / sum(weights) for w in weights]
+        if weights
+        else [1 / len(choices) for _ in choices]
+    )
     for k, c in count.items():
         assert np.isclose(c / len(index), weights[choices.index(k)], atol=0.01)
 
@@ -104,8 +117,12 @@ def test_choice_with_residuals(index, choices, weights_with_residuals):
         count = chosen.value_counts()
         print(weights_with_residuals)
         # We're relying on the fact that weights_with_residuals is a 1-d list
-        residual_p = 1 - sum([w for w in weights_with_residuals if w != RESIDUAL_CHOICE])
-        weights = [w if w != RESIDUAL_CHOICE else residual_p for w in weights_with_residuals]
+        residual_p = 1 - sum(
+            [w for w in weights_with_residuals if w != RESIDUAL_CHOICE]
+        )
+        weights = [
+            w if w != RESIDUAL_CHOICE else residual_p for w in weights_with_residuals
+        ]
 
         for k, c in count.items():
             assert np.isclose(c / len(index), weights[choices.index(k)], atol=0.01)
@@ -148,7 +165,9 @@ def test_RandomnessManager_register_simulants():
     good_df = pd.DataFrame({"age": range(10), "sex": [1] * 5 + [2] * 5})
 
     rm.register_simulants(good_df)
-    assert rm._key_mapping._map.index.difference(good_df.set_index(good_df.columns.tolist()).index).empty
+    assert rm._key_mapping._map.index.difference(
+        good_df.set_index(good_df.columns.tolist()).index
+    ).empty
 
 
 def test_get_random_seed():
@@ -160,4 +179,6 @@ def test_get_random_seed():
     rm._seed = seed
     rm._clock = mock_clock
 
-    assert rm.get_seed(decision_point) == random.get_hash(f"{decision_point}_{rm._clock()}_{seed}")
+    assert rm.get_seed(decision_point) == random.get_hash(
+        f"{decision_point}_{rm._clock()}_{seed}"
+    )

@@ -45,7 +45,9 @@ class Interpolation:
 
         # TODO: allow for order 1 interpolation with binned edges
         if order != 0:
-            raise NotImplementedError(f"Interpolation is only supported for order 0. You specified order {order}")
+            raise NotImplementedError(
+                f"Interpolation is only supported for order 0. You specified order {order}"
+            )
 
         if validate:
             validate_parameters(data, categorical_parameters, continuous_parameters)
@@ -55,7 +57,8 @@ class Interpolation:
         self.parameter_columns = continuous_parameters
 
         self.value_columns = self.data.columns.difference(
-            set(self.key_columns) | set([col for p in self.parameter_columns for col in p])
+            set(self.key_columns)
+            | set([col for p in self.parameter_columns for col in p])
         )
 
         self.order = order
@@ -73,11 +76,17 @@ class Interpolation:
         self.interpolations = {}
 
         for key, base_table in sub_tables:
-            if base_table.empty:  # if one of the key columns is a category and not all values are present in data
+            if (
+                base_table.empty
+            ):  # if one of the key columns is a category and not all values are present in data
                 continue
             # since order 0, we can interpolate all values at once
             self.interpolations[key] = Order0Interp(
-                base_table, self.parameter_columns, self.value_columns, self.extrapolate, self.validate
+                base_table,
+                self.parameter_columns,
+                self.value_columns,
+                self.extrapolate,
+                self.validate,
             )
 
     def __call__(self, interpolants: pd.DataFrame) -> pd.DataFrame:
@@ -103,12 +112,16 @@ class Interpolation:
             sub_tables = [(None, interpolants)]
         # specify some numeric type for columns so they won't be objects but will updated with whatever
         # column type actually is
-        result = pd.DataFrame(index=interpolants.index, columns=self.value_columns, dtype=np.float64)
+        result = pd.DataFrame(
+            index=interpolants.index, columns=self.value_columns, dtype=np.float64
+        )
         for key, sub_table in sub_tables:
             if sub_table.empty:
                 continue
             df = self.interpolations[key](sub_table)
-            result.loc[sub_table.index, self.value_columns] = df.loc[sub_table.index, self.value_columns]
+            result.loc[sub_table.index, self.value_columns] = df.loc[
+                sub_table.index, self.value_columns
+            ]
 
         return result
 
@@ -121,7 +134,9 @@ def validate_parameters(data, categorical_parameters, continuous_parameters):
         raise ValueError("You must supply non-empty data to create the interpolation.")
 
     if len(continuous_parameters) < 1:
-        raise ValueError("You must supply at least one continuous parameter over which to interpolate.")
+        raise ValueError(
+            "You must supply at least one continuous parameter over which to interpolate."
+        )
 
     for p in continuous_parameters:
         if not isinstance(p, (List, Tuple)) or len(p) != 3:
@@ -136,7 +151,9 @@ def validate_parameters(data, categorical_parameters, continuous_parameters):
     param_cols = [col for p in continuous_parameters for col in p]
 
     # These are the columns which the interpolation function will approximate
-    value_columns = sorted(data.columns.difference(set(categorical_parameters) | set(param_cols)))
+    value_columns = sorted(
+        data.columns.difference(set(categorical_parameters) | set(param_cols))
+    )
     if not value_columns:
         raise ValueError(
             f"No non-parameter data. Available columns: {data.columns}, "
@@ -147,7 +164,10 @@ def validate_parameters(data, categorical_parameters, continuous_parameters):
 
 def validate_call_data(data, key_columns, parameter_columns):
     if not isinstance(data, pd.DataFrame):
-        raise TypeError(f"Interpolations can only be called on pandas.DataFrames. You" f"passed {type(data)}.")
+        raise TypeError(
+            f"Interpolations can only be called on pandas.DataFrames. You"
+            f"passed {type(data)}."
+        )
     callable_param_cols = [p[0] for p in parameter_columns]
 
     if not set(callable_param_cols) <= set(data.columns.values.tolist()):
@@ -184,7 +204,9 @@ def check_data_complete(data, parameter_columns):
     parameter values.
     """
 
-    param_edges = [p[1:] for p in parameter_columns if isinstance(p, (Tuple, List))]  # strip out call column name
+    param_edges = [
+        p[1:] for p in parameter_columns if isinstance(p, (Tuple, List))
+    ]  # strip out call column name
 
     # check no overlaps/gaps
     for p in param_edges:
@@ -199,10 +221,14 @@ def check_data_complete(data, parameter_columns):
         for _, table in sub_tables:
 
             param_data = table[[p[0], p[1]]].copy().sort_values(by=p[0])
-            start, end = param_data[p[0]].reset_index(drop=True), param_data[p[1]].reset_index(drop=True)
+            start, end = param_data[p[0]].reset_index(drop=True), param_data[
+                p[1]
+            ].reset_index(drop=True)
 
             if len(set(start)) < n_p_total:
-                raise ValueError(f"You must provide a value for every combination of {parameter_columns}.")
+                raise ValueError(
+                    f"You must provide a value for every combination of {parameter_columns}."
+                )
 
             if len(start) <= 1:
                 continue
@@ -211,7 +237,8 @@ def check_data_complete(data, parameter_columns):
                 s = start[i]
                 if e > s or s == start[i - 1]:
                     raise ValueError(
-                        f"Parameter data must not contain overlaps. Parameter {p} " f"contains overlapping data."
+                        f"Parameter data must not contain overlaps. Parameter {p} "
+                        f"contains overlapping data."
                     )
                 if e < s:
                     raise NotImplementedError(
@@ -234,7 +261,12 @@ class Order0Interp:
     """
 
     def __init__(
-        self, data, parameter_columns: ParameterType, value_columns: List[str], extrapolate: bool, validate: bool
+        self,
+        data,
+        parameter_columns: ParameterType,
+        value_columns: List[str],
+        extrapolate: bool,
+        validate: bool,
     ):
         """
 
@@ -266,7 +298,10 @@ class Order0Interp:
             left_edge = self.data[p[1]].drop_duplicates().sort_values()
             max_right = self.data[p[2]].drop_duplicates().max()
 
-            self.parameter_bins[tuple(p)] = {"bins": left_edge.reset_index(drop=True), "max": max_right}
+            self.parameter_bins[tuple(p)] = {
+                "bins": left_edge.reset_index(drop=True),
+                "max": max_right,
+            }
 
     def __call__(self, interpolants: pd.DataFrame) -> pd.DataFrame:
         """Find the bins for each parameter for each interpolant in interpolants
@@ -292,7 +327,9 @@ class Order0Interp:
             max_right = d["max"]
             merge_cols.append(cols[1])
             interpolant_col = interpolants[cols[0]]
-            if not self.extrapolate and (interpolant_col.min() < bins[0] or interpolant_col.max() >= max_right):
+            if not self.extrapolate and (
+                interpolant_col.min() < bins[0] or interpolant_col.max() >= max_right
+            ):
                 raise ValueError(
                     f"Extrapolation outside of bins used to set up interpolation is only allowed "
                     f"when explicitly set in creation of Interpolation. Extrapolation is currently "
@@ -306,5 +343,7 @@ class Order0Interp:
 
         index = interpolant_bins.index
 
-        interp_vals = interpolant_bins.merge(self.data, how="left", on=merge_cols).set_index(index)
+        interp_vals = interpolant_bins.merge(
+            self.data, how="left", on=merge_cols
+        ).set_index(index)
         return interp_vals[self.value_columns]

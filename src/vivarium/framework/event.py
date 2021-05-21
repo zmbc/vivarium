@@ -108,7 +108,12 @@ class EventChannel:
         """
         if not user_data:
             user_data = {}
-        e = Event(index, user_data, self.manager.clock() + self.manager.step_size(), self.manager.step_size())
+        e = Event(
+            index,
+            user_data,
+            self.manager.clock() + self.manager.step_size(),
+            self.manager.step_size(),
+        )
 
         for priority_bucket in self.listeners:
             for listener in priority_bucket:
@@ -159,7 +164,9 @@ class EventManager:
         self.add_handlers = builder.lifecycle.add_handlers
         self.add_constraint = builder.lifecycle.add_constraint
 
-        builder.lifecycle.add_constraint(self.get_emitter, allow_during=["setup", "simulation_end", "report"])
+        builder.lifecycle.add_constraint(
+            self.get_emitter, allow_during=["setup", "simulation_end", "report"]
+        )
         builder.lifecycle.add_constraint(self.register_listener, allow_during=["setup"])
 
     def on_post_setup(self, event):
@@ -219,7 +226,11 @@ class EventManager:
             listeners to a list of listeners at that level.
         """
         channel = self.get_channel(name)
-        return {priority: listeners for priority, listeners in enumerate(channel.listeners) if listeners}
+        return {
+            priority: listeners
+            for priority, listeners in enumerate(channel.listeners)
+            if listeners
+        }
 
     def list_events(self) -> List[Event]:
         """List all event names known to the event system.
@@ -270,7 +281,9 @@ class EventInterface:
         """
         return self._manager.get_emitter(name)
 
-    def register_listener(self, name: str, listener: Callable[[Event], None], priority: int = 5) -> None:
+    def register_listener(
+        self, name: str, listener: Callable[[Event], None], priority: int = 5
+    ) -> None:
         """Registers a callable as a listener to a events with the given name.
 
         The listening callable will be called with a named ``Event`` as its

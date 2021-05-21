@@ -1,7 +1,12 @@
 import pandas as pd
 import pytest
 
-from vivarium.framework.population import PopulationView, InitializerComponentSet, PopulationError, PopulationManager
+from vivarium.framework.population import (
+    PopulationView,
+    InitializerComponentSet,
+    PopulationError,
+    PopulationManager,
+)
 
 
 class DummyPopulationManager:

@@ -264,8 +264,12 @@ class ValuesManager:
         self.resources = builder.resources
         self.add_constraint = builder.lifecycle.add_constraint
 
-        builder.lifecycle.add_constraint(self.register_value_producer, allow_during=["setup"])
-        builder.lifecycle.add_constraint(self.register_value_modifier, allow_during=["setup"])
+        builder.lifecycle.add_constraint(
+            self.register_value_producer, allow_during=["setup"]
+        )
+        builder.lifecycle.add_constraint(
+            self.register_value_modifier, allow_during=["setup"]
+        )
 
     def on_post_setup(self, _):
         """Finalizes dependency structure for the pipelines."""
@@ -309,20 +313,30 @@ class ValuesManager:
             :meth:`ValuesInterface.register_value_producer`
 
         """
-        pipeline = self._register_value_producer(value_name, source, preferred_combiner, preferred_post_processor)
+        pipeline = self._register_value_producer(
+            value_name, source, preferred_combiner, preferred_post_processor
+        )
 
         # The resource we add here is just the pipeline source.
         # The value will depend on the source and its modifiers, and we'll
         # declare that resource at post-setup once all sources and modifiers
         # are registered.
-        dependencies = self._convert_dependencies(source, requires_columns, requires_values, requires_streams)
+        dependencies = self._convert_dependencies(
+            source, requires_columns, requires_values, requires_streams
+        )
         self.resources.add_resources("value_source", [value_name], source, dependencies)
-        self.add_constraint(pipeline._call, restrict_during=["initialization", "setup", "post_setup"])
+        self.add_constraint(
+            pipeline._call, restrict_during=["initialization", "setup", "post_setup"]
+        )
 
         return pipeline
 
     def _register_value_producer(
-        self, value_name: str, source: Callable, preferred_combiner: Callable, preferred_post_processor: Callable
+        self,
+        value_name: str,
+        source: Callable,
+        preferred_combiner: Callable,
+        preferred_post_processor: Callable,
     ):
         """Configure the named value pipeline with a source, combiner, and post-processor."""
         logger.debug(f"Registering value pipeline {value_name}")
@@ -380,7 +394,9 @@ class ValuesManager:
 
         name = f"{value_name}.{len(pipeline.mutators)}.{modifier_name}"
         logger.debug(f"Registering {name} as modifier to {value_name}")
-        dependencies = self._convert_dependencies(modifier, requires_columns, requires_values, requires_streams)
+        dependencies = self._convert_dependencies(
+            modifier, requires_columns, requires_values, requires_streams
+        )
         self.resources.add_resources("value_modifier", [name], modifier, dependencies)
 
     def get_value(self, name):
@@ -402,7 +418,9 @@ class ValuesManager:
         return self._pipelines[name]  # May create a pipeline.
 
     @staticmethod
-    def _convert_dependencies(func, requires_columns, requires_values, requires_streams):
+    def _convert_dependencies(
+        func, requires_columns, requires_values, requires_streams
+    ):
         # If declaring a pipeline as a value source or modifier, columns and
         # streams are optional since the pipeline itself will have all the
         # appropriate dependencies. In any situation, make sure we don't have
@@ -421,11 +439,17 @@ class ValuesManager:
     @staticmethod
     def _get_modifier_name(modifier):
         """Get reproducible modifier names based on the modifier type."""
-        if hasattr(modifier, "name"):  # This is Pipeline or lookup table or something similar
+        if hasattr(
+            modifier, "name"
+        ):  # This is Pipeline or lookup table or something similar
             modifier_name = modifier.name
-        elif hasattr(modifier, "__self__"):  # This is a bound method of a component or other object
+        elif hasattr(
+            modifier, "__self__"
+        ):  # This is a bound method of a component or other object
             owner = modifier.__self__
-            owner_name = owner.name if hasattr(owner, "name") else owner.__class__.__name__
+            owner_name = (
+                owner.name if hasattr(owner, "name") else owner.__class__.__name__
+            )
             modifier_name = f"{owner_name}.{modifier.__name__}"
         elif hasattr(modifier, "__name__"):  # Some unbound function
             modifier_name = modifier.__name__
@@ -609,7 +633,9 @@ class ValuesInterface:
             before the pipeline modifier is called.
 
         """
-        self._manager.register_value_modifier(value_name, modifier, requires_columns, requires_values, requires_streams)
+        self._manager.register_value_modifier(
+            value_name, modifier, requires_columns, requires_values, requires_streams
+        )
 
     def get_value(self, name: str) -> Pipeline:
         """Retrieve the pipeline representing the named value.

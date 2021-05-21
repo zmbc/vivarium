@@ -348,7 +348,9 @@ def test_lifecycle_manager_add_handlers():
 
     b = BumbleBee("Alice")
 
-    lm.add_handlers("initialization", [b.buzz, b.what_we_doin, test_lifecycle_manager_add_handlers])
+    lm.add_handlers(
+        "initialization", [b.buzz, b.what_we_doin, test_lifecycle_manager_add_handlers]
+    )
     assert init._handlers == [
         "BumbleBee(Alice).buzz",
         "BumbleBee(Alice).what_we_doin",
@@ -369,7 +371,9 @@ def test_lifecycle_manager_add_constraint_fail():
         lm.add_constraint(alice.buzz)
 
     with pytest.raises(ValueError, match="Must provide exactly one"):
-        lm.add_constraint(alice.buzz, allow_during=["initialization", "a"], restrict_during=["c"])
+        lm.add_constraint(
+            alice.buzz, allow_during=["initialization", "a"], restrict_during=["c"]
+        )
 
     with pytest.raises(LifeCycleError, match="states not in the life cycle"):
         lm.add_constraint(alice.buzz, allow_during=["not_a_state"])
@@ -383,7 +387,9 @@ def test_lifecycle_manager_add_constraint_fail():
         lm.add_constraint(alice.buzz, allow_during=["b"])
 
     with pytest.raises(TypeError, match="bound object methods"):
-        lm.add_constraint(test_lifecycle_manager_add_constraint_fail, allow_during=["a"])
+        lm.add_constraint(
+            test_lifecycle_manager_add_constraint_fail, allow_during=["a"]
+        )
 
     with pytest.raises(ValueError, match="normal object methods"):
         lm.add_constraint(alice.__call__, allow_during=["a"])

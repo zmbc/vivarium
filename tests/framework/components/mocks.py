@@ -56,7 +56,9 @@ class MockGenericComponent:
 
     def __init__(self, name):
         self.name = name
-        self.configuration_defaults = {self.name: MockGenericComponent.configuration_defaults["component"]}
+        self.configuration_defaults = {
+            self.name: MockGenericComponent.configuration_defaults["component"]
+        }
         self.builder_used_for_setup = None
 
     def setup(self, builder):
@@ -85,9 +87,13 @@ class Listener(MockComponentB):
     def setup(self, builder):
         super().setup(builder)
         builder.event.register_listener("post_setup", self.on_post_setup)
-        builder.event.register_listener("time_step__prepare", self.on_time_step__prepare)
+        builder.event.register_listener(
+            "time_step__prepare", self.on_time_step__prepare
+        )
         builder.event.register_listener("time_step", self.on_time_step)
-        builder.event.register_listener("time_step__cleanup", self.on_time_step__cleanup)
+        builder.event.register_listener(
+            "time_step__cleanup", self.on_time_step__cleanup
+        )
         builder.event.register_listener("collect_metrics", self.on_collect_metrics)
         builder.event.register_listener("simulation_end", self.on_simulation_end)
 

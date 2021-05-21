@@ -177,7 +177,9 @@ class PopulationView:
             columns = self._columns
             non_existent_columns = set(columns) - set(pop.columns)
             if non_existent_columns:
-                raise PopulationError(f"Requested column(s) {non_existent_columns} not in population table.")
+                raise PopulationError(
+                    f"Requested column(s) {non_existent_columns} not in population table."
+                )
             else:
                 return pop.loc[:, columns]
 
@@ -251,7 +253,9 @@ class PopulationView:
                             f"Old column type: {new_state_table_values.dtype} "
                             f"New column type: {update_values.dtype}"
                         )
-                    new_state_table_values = new_state_table_values.astype(update_values.dtype)
+                    new_state_table_values = new_state_table_values.astype(
+                        update_values.dtype
+                    )
             else:
                 if isinstance(population_update, pd.Series):
                     new_state_table_values = population_update.values
@@ -327,7 +331,8 @@ class InitializerComponentSet:
             )
         if component.name in self._components:
             raise PopulationError(
-                f"Component {component.name} has multiple population initializers. " "This is not allowed."
+                f"Component {component.name} has multiple population initializers. "
+                "This is not allowed."
             )
         for column in columns_produced:
             if column in self._columns_produced:
@@ -375,12 +380,25 @@ class PopulationManager:
         self._add_constraint = builder.lifecycle.add_constraint
 
         builder.lifecycle.add_constraint(
-            self.get_view, allow_during=["setup", "post_setup", "population_creation", "simulation_end", "report"]
+            self.get_view,
+            allow_during=[
+                "setup",
+                "post_setup",
+                "population_creation",
+                "simulation_end",
+                "report",
+            ],
         )
-        builder.lifecycle.add_constraint(self.get_simulant_creator, allow_during=["setup"])
-        builder.lifecycle.add_constraint(self.register_simulant_initializer, allow_during=["setup"])
+        builder.lifecycle.add_constraint(
+            self.get_simulant_creator, allow_during=["setup"]
+        )
+        builder.lifecycle.add_constraint(
+            self.register_simulant_initializer, allow_during=["setup"]
+        )
 
-        self.register_simulant_initializer(self.on_initialize_simulants, creates_columns=["tracked"])
+        self.register_simulant_initializer(
+            self.on_initialize_simulants, creates_columns=["tracked"]
+        )
         self._view = self.get_view(["tracked"])
 
         builder.value.register_value_modifier("metrics", modifier=self.metrics)
@@ -408,7 +426,9 @@ class PopulationManager:
     # Builder API and helpers #
     ###########################
 
-    def get_view(self, columns: Union[List[str], Tuple[str]], query: str = None) -> PopulationView:
+    def get_view(
+        self, columns: Union[List[str], Tuple[str]], query: str = None
+    ) -> PopulationView:
         """Get a time-varying view of the population state table.
 
         The requested population view can be used to view the current state or
@@ -439,9 +459,18 @@ class PopulationManager:
 
         """
         view = self._get_view(columns, query)
-        self._add_constraint(view.get, restrict_during=["initialization", "setup", "post_setup"])
         self._add_constraint(
-            view.update, restrict_during=["initialization", "setup", "post_setup", "simulation_end", "report"]
+            view.get, restrict_during=["initialization", "setup", "post_setup"]
+        )
+        self._add_constraint(
+            view.update,
+            restrict_during=[
+                "initialization",
+                "setup",
+                "post_setup",
+                "simulation_end",
+                "report",
+            ],
         )
         return view
 
@@ -494,7 +523,9 @@ class PopulationManager:
             # The population view itself uses the tracked column, so include
             # to be safe.
             dependencies += ["column.tracked"]
-        self.resources.add_resources("column", list(creates_columns), initializer, dependencies)
+        self.resources.add_resources(
+            "column", list(creates_columns), initializer, dependencies
+        )
 
     def get_simulant_creator(self) -> Callable:
         """Gets a function that can generate new simulants.
@@ -514,15 +545,23 @@ class PopulationManager:
         """
         return self._create_simulants
 
-    def _create_simulants(self, count: int, population_configuration: Dict[str, Any] = None) -> pd.Index:
-        population_configuration = population_configuration if population_configuration else {}
+    def _create_simulants(
+        self, count: int, population_configuration: Dict[str, Any] = None
+    ) -> pd.Index:
+        population_configuration = (
+            population_configuration if population_configuration else {}
+        )
         new_index = range(len(self._population) + count)
         new_population = self._population.reindex(new_index)
         index = new_population.index.difference(self._population.index)
         self._population = new_population
         self.growing = True
         for initializer in self.resources:
-            initializer(SimulantData(index, population_configuration, self.clock(), self.step_size()))
+            initializer(
+                SimulantData(
+                    index, population_configuration, self.clock(), self.step_size()
+                )
+            )
         self.growing = False
         return index
 
@@ -576,7 +615,9 @@ class PopulationInterface:
     def __init__(self, manager: PopulationManager):
         self._manager = manager
 
-    def get_view(self, columns: Union[List[str], Tuple[str]], query: str = None) -> PopulationView:
+    def get_view(
+        self, columns: Union[List[str], Tuple[str]], query: str = None
+    ) -> PopulationView:
         """Get a time-varying view of the population state table.
 
         The requested population view can be used to view the current state or
@@ -608,7 +649,9 @@ class PopulationInterface:
         """
         return self._manager.get_view(columns, query)
 
-    def get_simulant_creator(self) -> Callable[[int, Union[Dict[str, Any], None]], pd.Index]:
+    def get_simulant_creator(
+        self,
+    ) -> Callable[[int, Union[Dict[str, Any], None]], pd.Index]:
         """Gets a function that can generate new simulants.
 
         Returns
@@ -657,5 +700,9 @@ class PopulationInterface:
 
         """
         self._manager.register_simulant_initializer(
-            initializer, creates_columns, requires_columns, requires_values, requires_streams
+            initializer,
+            creates_columns,
+            requires_columns,
+            requires_values,
+            requires_streams,
         )

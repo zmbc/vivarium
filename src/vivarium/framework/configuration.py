@@ -31,9 +31,15 @@ def build_model_specification(
 
     output_spec = _get_default_specification()
     output_spec.update(model_specification, layer="model_override", source=source)
-    output_spec.components.update(component_configuration, layer="override", source="user_supplied_args")
-    output_spec.configuration.update(configuration, layer="override", source="user_supplied_args")
-    output_spec.plugins.update(plugin_configuration, layer="override", source="user_supplied_args")
+    output_spec.components.update(
+        component_configuration, layer="override", source="user_supplied_args"
+    )
+    output_spec.configuration.update(
+        configuration, layer="override", source="user_supplied_args"
+    )
+    output_spec.plugins.update(
+        plugin_configuration, layer="override", source="user_supplied_args"
+    )
 
     return output_spec
 
@@ -43,13 +49,15 @@ def validate_model_specification_file(file_path: Union[str, Path]) -> None:
     file_path = Path(file_path)
     if not file_path.exists():
         raise ConfigurationError(
-            "If you provide a model specification file, it must be a file. " f"You provided {str(file_path)}",
+            "If you provide a model specification file, it must be a file. "
+            f"You provided {str(file_path)}",
             value_name=None,
         )
 
     if file_path.suffix not in [".yaml", ".yml"]:
         raise ConfigurationError(
-            f"Model specification files must be in a yaml format. You provided {file_path.suffix}", value_name=None
+            f"Model specification files must be in a yaml format. You provided {file_path.suffix}",
+            value_name=None,
         )
     # Attempt to load
     with file_path.open() as f:
@@ -58,7 +66,8 @@ def validate_model_specification_file(file_path: Union[str, Path]) -> None:
     valid_keys = {"plugins", "components", "configuration"}
     if not top_keys <= valid_keys:
         raise ConfigurationError(
-            f"Model specification contains additional top level " f"keys {valid_keys.difference(top_keys)}.",
+            f"Model specification contains additional top level "
+            f"keys {valid_keys.difference(top_keys)}.",
             value_name=None,
         )
 
@@ -68,7 +77,13 @@ def build_simulation_configuration() -> ConfigTree:
 
 
 def _get_default_specification():
-    default_config_layers = ["base", "user_configs", "component_configs", "model_override", "override"]
+    default_config_layers = [
+        "base",
+        "user_configs",
+        "component_configs",
+        "model_override",
+        "override",
+    ]
     default_metadata = {"layer": "base", "source": "vivarium_defaults"}
 
     model_specification = ConfigTree(layers=default_config_layers)

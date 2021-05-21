@@ -89,7 +89,9 @@ class ResultsInterface:
     def __init__(self, manager: ResultsManager) -> None:
         self._manager = manager
 
-    def add_mapping_strategy(self, new_column: str, mapper: Callable[[pd.Index], pd.Series]) -> None:
+    def add_mapping_strategy(
+        self, new_column: str, mapper: Callable[[pd.Index], pd.Series]
+    ) -> None:
         """Adds a specification to map simulation state into a new column.
 
         This allows a user to specify an arbitrary function to generate
@@ -171,5 +173,10 @@ class ResultsInterface:
 
         """
         self._manager.register_results_producer(
-            measure, pop_filter, aggregator, list(additional_grouping_columns), list(excluded_grouping_columns), when
+            measure,
+            pop_filter,
+            aggregator,
+            list(additional_grouping_columns),
+            list(excluded_grouping_columns),
+            when,
         )

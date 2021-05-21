@@ -91,9 +91,13 @@ class Artifact:
             raise ArtifactException(f"{entity_key} should be in {self.path}.")
 
         if entity_key not in self._cache:
-            data = hdf.load(self._path, entity_key, self._filter_terms, self._draw_column_filter)
+            data = hdf.load(
+                self._path, entity_key, self._filter_terms, self._draw_column_filter
+            )
             # FIXME: Under what conditions do we get None here.
-            assert data is not None, f"Data for {entity_key} is not available. Check your model specification."
+            assert (
+                data is not None
+            ), f"Data for {entity_key} is not available. Check your model specification."
             self._cache[entity_key] = data
 
         return self._cache[entity_key]
@@ -118,7 +122,9 @@ class Artifact:
         if entity_key in self:
             raise ArtifactException(f"{entity_key} already in artifact.")
         elif data is None:
-            raise ArtifactException(f"Attempting to write to key {entity_key} with no data.")
+            raise ArtifactException(
+                f"Attempting to write to key {entity_key} with no data."
+            )
         else:
             hdf.write(self._path, entity_key, data)
             self._keys.append(entity_key)
@@ -138,7 +144,9 @@ class Artifact:
 
         """
         if entity_key not in self:
-            raise ArtifactException(f"Trying to remove non-existent key {entity_key} from artifact.")
+            raise ArtifactException(
+                f"Trying to remove non-existent key {entity_key} from artifact."
+            )
 
         self._keys.remove(entity_key)
         if entity_key in self._cache:
@@ -163,7 +171,9 @@ class Artifact:
 
         """
         if entity_key not in self:
-            raise ArtifactException(f"Trying to replace non-existent key {entity_key} in artifact.")
+            raise ArtifactException(
+                f"Trying to replace non-existent key {entity_key} in artifact."
+            )
         self.remove(entity_key)
         self.write(entity_key, data)
 
@@ -218,7 +228,9 @@ class Keys:
 
     def __init__(self, artifact_path: Path):
         self._path = artifact_path
-        self._keys = [str(k) for k in hdf.load(self._path, "metadata.keyspace", None, None)]
+        self._keys = [
+            str(k) for k in hdf.load(self._path, "metadata.keyspace", None, None)
+        ]
 
     def append(self, new_key: str):
         """Whenever the artifact gets a new key and new data, append is called to
@@ -273,11 +285,14 @@ def _parse_draw_filters(filter_terms):
             term = [s.strip() for s in draw_terms[0] if s.strip()]
             if len(term) == 4 and term[1].lower() == "i" and term[2].lower() == "n":
                 draws = [int(d) for d in term[-1][1:-1].split(",")]
-            elif (len(term) == 4 and term[1] == term[2] == "=") or (len(term) == 3 and term[1] == "="):
+            elif (len(term) == 4 and term[1] == term[2] == "=") or (
+                len(term) == 3 and term[1] == "="
+            ):
                 draws = [int(term[-1])]
             else:
                 raise NotImplementedError(
-                    f"The only supported draw filters are =, ==, or in. " f'You supplied {"".join(term)}.'
+                    f"The only supported draw filters are =, ==, or in. "
+                    f'You supplied {"".join(term)}.'
                 )
 
             columns = [f"draw_{n}" for n in draws] + ["value"]

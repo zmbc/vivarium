@@ -130,10 +130,16 @@ def test_node_get_value_with_source_empty(empty_node):
 
 
 def test_node_get_value_with_source(full_node):
-    assert full_node._get_value_with_source(layer=None) == (None, f"test_value_{len(full_node._layers)}")
+    assert full_node._get_value_with_source(layer=None) == (
+        None,
+        f"test_value_{len(full_node._layers)}",
+    )
 
     for i, layer in enumerate(full_node._layers):
-        assert full_node._get_value_with_source(layer=layer) == (None, f"test_value_{i+1}")
+        assert full_node._get_value_with_source(layer=layer) == (
+            None,
+            f"test_value_{i+1}",
+        )
 
     assert not full_node.accessed
 
@@ -274,7 +280,10 @@ def test_tree_coerce_yaml(tmpdir):
              - val
          sub_key2: [val, val]
      key2: val"""
-    r = {"key1": {"sub_key1": ["val", "val", "val"], "sub_key2": ["val", "val"]}, "key2": "val"}
+    r = {
+        "key1": {"sub_key1": ["val", "val", "val"], "sub_key2": ["val", "val"]},
+        "key2": "val",
+    }
     s = "test"
     p = tmpdir.join("model_spec.yaml")
     with p.open("w") as f:
@@ -372,7 +381,10 @@ def test_update_dict():
 
 def test_update_dict_nested():
     d = ConfigTree(layers=["inner", "outer"])
-    d.update({"test_container": {"test_key": "test_value", "test_key2": "test_value2"}}, layer="inner")
+    d.update(
+        {"test_container": {"test_key": "test_value", "test_key2": "test_value2"}},
+        layer="inner",
+    )
     with pytest.raises(DuplicatedConfigurationError):
         d.update({"test_container": {"test_key": "test_value3"}}, layer="inner")
 
@@ -404,7 +416,9 @@ def test_exception_on_source_for_missing_key():
 
 
 def test_unused_keys():
-    d = ConfigTree({"test_key": {"test_key2": "test_value", "test_key3": "test_value2"}})
+    d = ConfigTree(
+        {"test_key": {"test_key2": "test_value", "test_key3": "test_value2"}}
+    )
 
     assert d.unused_keys() == ["test_key.test_key2", "test_key.test_key3"]
 

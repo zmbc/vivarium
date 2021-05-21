@@ -83,7 +83,9 @@ def test_touch_existing_file(tmpdir):
 
 def test_write_df(hdf_file_path, mock_key, mocker):
     df_mock = mocker.patch("vivarium.framework.artifact.hdf._write_pandas_data")
-    data = pd.DataFrame(np.random.random((10, 3)), columns=["a", "b", "c"], index=range(10))
+    data = pd.DataFrame(
+        np.random.random((10, 3)), columns=["a", "b", "c"], index=range(10)
+    )
 
     hdf.write(hdf_file_path, mock_key, data)
 
@@ -109,7 +111,9 @@ def test_load(hdf_file_path, hdf_key):
 
 def test_load_with_invalid_filters(hdf_file_path, hdf_key):
     key = hdf.EntityKey(hdf_key)
-    data = hdf.load(hdf_file_path, key, filter_terms=["fake_filter==0"], column_filters=None)
+    data = hdf.load(
+        hdf_file_path, key, filter_terms=["fake_filter==0"], column_filters=None
+    )
     if "restrictions" in key or "versions" in key:
         assert isinstance(data, dict)
     elif "metadata" in key:
@@ -120,7 +124,9 @@ def test_load_with_invalid_filters(hdf_file_path, hdf_key):
 
 def test_load_with_valid_filters(hdf_file_path, hdf_key):
     key = hdf.EntityKey(hdf_key)
-    data = hdf.load(hdf_file_path, key, filter_terms=["year == 2006"], column_filters=None)
+    data = hdf.load(
+        hdf_file_path, key, filter_terms=["year == 2006"], column_filters=None
+    )
     if "restrictions" in key or "versions" in key:
         assert isinstance(data, dict)
     elif "metadata" in key:
@@ -137,7 +143,9 @@ def test_load_filter_empty_data_frame_index(hdf_file_path):
     data = data.set_index(list(data.columns))
 
     hdf._write_pandas_data(hdf_file_path, key, data)
-    loaded_data = hdf.load(hdf_file_path, key, filter_terms=["year == 4"], column_filters=None)
+    loaded_data = hdf.load(
+        hdf_file_path, key, filter_terms=["year == 4"], column_filters=None
+    )
     loaded_data = loaded_data.reset_index()
     assert loaded_data.year.unique() == 4
 
@@ -178,7 +186,9 @@ def test_write_empty_data_frame_index(hdf_file_path):
 
     hdf._write_pandas_data(hdf_file_path, key, data)
     written_data = pd.read_hdf(hdf_file_path, key.path)
-    written_data = written_data.set_index(list(written_data))  # write resets index. only calling load undoes it
+    written_data = written_data.set_index(
+        list(written_data)
+    )  # write resets index. only calling load undoes it
     assert written_data.equals(data)
 
 
@@ -236,7 +246,9 @@ def test_get_valid_filter_terms_all_valid(hdf_key, hdf_file):
     if not isinstance(node, tables.earray.EArray):
         columns = node.table.colnames
         valid_filter_terms = _construct_all_valid_filters(columns)
-        assert set(hdf._get_valid_filter_terms(valid_filter_terms, columns)) == set(valid_filter_terms)
+        assert set(hdf._get_valid_filter_terms(valid_filter_terms, columns)) == set(
+            valid_filter_terms
+        )
 
 
 def test_get_valid_filter_terms_some_valid(hdf_key, hdf_file):
@@ -255,13 +267,17 @@ def test_get_valid_filter_terms_no_terms():
 
 
 def _construct_no_valid_filters(columns):
-    fake_cols = [c[1:] for c in columns]  # strip out the first char to make a list of all fake cols
+    fake_cols = [
+        c[1:] for c in columns
+    ]  # strip out the first char to make a list of all fake cols
     terms = [c + " <= 0" for c in fake_cols]
     return _complicate_terms_to_parse(terms)
 
 
 def _construct_all_valid_filters(columns):
-    terms = [c + "=0" for c in columns]  # assume c is numeric - we won't actually apply filter
+    terms = [
+        c + "=0" for c in columns
+    ]  # assume c is numeric - we won't actually apply filter
     return _complicate_terms_to_parse(terms)
 
 
@@ -329,15 +345,31 @@ def test_entity_key_equality():
 
     nonstring = NonString()
 
-    assert key == string, "Comparision using __eq__ between string object and equivalent EntityKey failed"
-    assert not (key != string), "Comparision using __ne__ between string object and equivalent EntityKey failed"
-    assert key != nonstring, "Comparision using __eq__ between non-string object and equivalent EntityKey failed"
-    assert not (key == nonstring), "Comparision using __ne__ between non-string object and equivalent EntityKey failed"
+    assert (
+        key == string
+    ), "Comparision using __eq__ between string object and equivalent EntityKey failed"
+    assert not (
+        key != string
+    ), "Comparision using __ne__ between string object and equivalent EntityKey failed"
+    assert (
+        key != nonstring
+    ), "Comparision using __eq__ between non-string object and equivalent EntityKey failed"
+    assert not (
+        key == nonstring
+    ), "Comparision using __ne__ between non-string object and equivalent EntityKey failed"
 
     measure = "prevalence"
     string = f"{type_}.{name}.{measure}"
 
-    assert key != string, "Comparision using __eq__ between string object and different EntityKey failed"
-    assert not (key == string), "Comparision using __ne__ between string object and different EntityKey failed"
-    assert key != nonstring, "Comparision using __eq__ between non-string object and different EntityKey failed"
-    assert not (key == nonstring), "Comparision using __ne__ between non-string object and different EntityKey failed"
+    assert (
+        key != string
+    ), "Comparision using __eq__ between string object and different EntityKey failed"
+    assert not (
+        key == string
+    ), "Comparision using __ne__ between string object and different EntityKey failed"
+    assert (
+        key != nonstring
+    ), "Comparision using __eq__ between non-string object and different EntityKey failed"
+    assert not (
+        key == nonstring
+    ), "Comparision using __ne__ between non-string object and different EntityKey failed"

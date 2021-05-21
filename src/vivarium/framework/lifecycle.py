@@ -189,13 +189,17 @@ class LifeCyclePhase:
         return bool([s for s in self._states if s.name == state_name])
 
     def __repr__(self) -> str:
-        return f"LifeCyclePhase(name={self.name}, states={[s.name for s in self.states]})"
+        return (
+            f"LifeCyclePhase(name={self.name}, states={[s.name for s in self.states]})"
+        )
 
     def __str__(self) -> str:
         out = self.name
         if self._loop:
             out += "*"
-        out += "\n" + textwrap.indent("\n".join([str(state) for state in self.states]), "\t")
+        out += "\n" + textwrap.indent(
+            "\n".join([str(state) for state in self.states]), "\t"
+        )
         return out
 
 
@@ -260,7 +264,9 @@ class LifeCycle:
 
         """
         if state_name not in self:
-            raise LifeCycleError(f"Attempting to look up non-existent state {state_name}.")
+            raise LifeCycleError(
+                f"Attempting to look up non-existent state {state_name}."
+            )
         phase = [p for p in self._phases if state_name in p].pop()
         return phase.get_state(state_name)
 
@@ -284,7 +290,9 @@ class LifeCycle:
 
         """
         if phase_name not in self._phase_names:
-            raise LifeCycleError(f"Attempting to look up states from non-existent phase {phase_name}.")
+            raise LifeCycleError(
+                f"Attempting to look up states from non-existent phase {phase_name}."
+            )
         phase = [p for p in self._phases if p.name == phase_name].pop()
         return [s.name for s in phase.states]
 
@@ -297,7 +305,8 @@ class LifeCycle:
             )
         if len(states) != len(set(states)):
             raise LifeCycleError(
-                f"Attempting to create a life cycle phase with duplicate state names. " f"States: {states}"
+                f"Attempting to create a life cycle phase with duplicate state names. "
+                f"States: {states}"
             )
         duplicates = self._state_names.intersection(states)
         if duplicates:
@@ -346,7 +355,9 @@ class ConstraintMaker:
                 f" but it may only be called during {permitted_states}."
             )
 
-    def constrain_normal_method(self, method: Callable, permitted_states: List[str]) -> Callable:
+    def constrain_normal_method(
+        self, method: Callable, permitted_states: List[str]
+    ) -> Callable:
         """Only permit a method to be called during the provided states.
 
         Constraints are applied by dynamically wrapping and binding a method
@@ -421,11 +432,15 @@ class ConstraintMaker:
         """
         if not hasattr(method, "__self__"):
             raise TypeError(
-                "Can only apply constraints to bound object methods. " f"You supplied the function {method}."
+                "Can only apply constraints to bound object methods. "
+                f"You supplied the function {method}."
             )
         name = method.__name__
         if name.startswith("__") and name.endswith("__"):
-            raise ValueError("Can only apply constraints to normal object methods. " f" You supplied {method}.")
+            raise ValueError(
+                "Can only apply constraints to normal object methods. "
+                f" You supplied {method}."
+            )
 
         if self.to_guid(method) in self.constraints:
             raise ConstraintError(f"Method {method} has already been constrained.")
@@ -499,7 +514,8 @@ class LifeCycleManager:
             self._current_state = new_state
         else:
             raise InvalidTransitionError(
-                f"Invalid transition from {self.current_state} " f"to {new_state.name} requested."
+                f"Invalid transition from {self.current_state} "
+                f"to {new_state.name} requested."
             )
 
     def get_state_names(self, phase: str) -> List[str]:
@@ -535,7 +551,12 @@ class LifeCycleManager:
         s = self.lifecycle.get_state(state_name)
         s.add_handlers(handlers)
 
-    def add_constraint(self, method: Callable, allow_during: List[str] = (), restrict_during: List[str] = ()):
+    def add_constraint(
+        self,
+        method: Callable,
+        allow_during: List[str] = (),
+        restrict_during: List[str] = (),
+    ):
         """Constrains a function to be executable only during certain states.
 
         Parameters
@@ -562,14 +583,23 @@ class LifeCycleManager:
 
         """
         if allow_during and restrict_during or not (allow_during or restrict_during):
-            raise ValueError('Must provide exactly one of "allow_during" or "restrict_during".')
-        unknown_states = set(allow_during).union(restrict_during).difference(self.lifecycle._state_names)
+            raise ValueError(
+                'Must provide exactly one of "allow_during" or "restrict_during".'
+            )
+        unknown_states = (
+            set(allow_during)
+            .union(restrict_during)
+            .difference(self.lifecycle._state_names)
+        )
         if unknown_states:
             raise LifeCycleError(
-                f"Attempting to constrain {method} with " f"states not in the life cycle: {list(unknown_states)}."
+                f"Attempting to constrain {method} with "
+                f"states not in the life cycle: {list(unknown_states)}."
             )
         if restrict_during:
-            allow_during = [s for s in self.lifecycle._state_names if s not in restrict_during]
+            allow_during = [
+                s for s in self.lifecycle._state_names if s not in restrict_during
+            ]
 
         self._make_constraint(method, allow_during)
 
@@ -608,7 +638,12 @@ class LifeCycleInterface:
         """
         self._manager.add_handlers(state, handlers)
 
-    def add_constraint(self, method: Callable, allow_during: List[str] = (), restrict_during: List[str] = ()):
+    def add_constraint(
+        self,
+        method: Callable,
+        allow_during: List[str] = (),
+        restrict_during: List[str] = (),
+    ):
         """Constrains a function to be executable only during certain states.
 
         Parameters

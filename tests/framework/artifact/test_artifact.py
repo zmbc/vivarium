@@ -2,7 +2,12 @@ import pytest
 from unittest.mock import call
 from pathlib import Path
 
-from vivarium.framework.artifact.artifact import Artifact, ArtifactException, _to_tree, _parse_draw_filters
+from vivarium.framework.artifact.artifact import (
+    Artifact,
+    ArtifactException,
+    _to_tree,
+    _parse_draw_filters,
+)
 from vivarium.framework.artifact.hdf import EntityKey
 
 
@@ -121,7 +126,9 @@ def test_artifact_load_key_has_no_data(hdf_mock):
     with pytest.raises(AssertionError) as err_info:
         a.load(key)
 
-    assert f"Data for {key} is not available. Check your model specification." == str(err_info.value)
+    assert f"Data for {key} is not available. Check your model specification." == str(
+        err_info.value
+    )
     assert hdf_mock.load.called_once_with(path, key, filter_terms)
     assert a._cache == {}
 
@@ -131,7 +138,11 @@ def test_artifact_load(hdf_mock, keys_mock):
     filter_terms = ["location == Global", "draw == 10"]
 
     a = Artifact(path, filter_terms)
-    keys_without_metadata = set(keys_mock) - {"metadata.locations", "metadata.keyspace", "metadata.versions"}
+    keys_without_metadata = set(keys_mock) - {
+        "metadata.locations",
+        "metadata.keyspace",
+        "metadata.versions",
+    }
     for key in keys_without_metadata:
         if key == "no_data.key":
             continue
@@ -292,7 +303,9 @@ def test_remove_bad_key(hdf_mock):
     with pytest.raises(ArtifactException) as err_info:
         a.remove(key)
 
-    assert f"Trying to remove non-existent key {key} from artifact." == str(err_info.value)
+    assert f"Trying to remove non-existent key {key} from artifact." == str(
+        err_info.value
+    )
     assert key not in a
     assert key not in a._cache
     hdf_mock.remove.assert_not_called()
@@ -399,7 +412,11 @@ def test_replace(hdf_mock, keys_mock):
     a.replace(key, "new_data")
 
     # keyspace will be remove first in self.remove from a.replace then self.write from a.replace
-    expected_calls_remove = [call(path, keyspace_key), call(path, key), call(path, keyspace_key)]
+    expected_calls_remove = [
+        call(path, keyspace_key),
+        call(path, key),
+        call(path, keyspace_key),
+    ]
     assert hdf_mock.remove.call_args_list == expected_calls_remove
 
     expected_calls_write = [
@@ -485,7 +502,11 @@ def test_keys_append(tmpdir):
     test_artifact.write("test.keys", "data")
     assert "test.keys" in test_artifact
     assert "test.keys" in test_keys
-    assert test_keys._keys == ["metadata.keyspace", "test.keys"] == [str(k) for k in test_artifact.keys]
+    assert (
+        test_keys._keys
+        == ["metadata.keyspace", "test.keys"]
+        == [str(k) for k in test_artifact.keys]
+    )
 
 
 def test_keys_remove(tmpdir):
@@ -506,8 +527,16 @@ def test_keys_remove(tmpdir):
 @pytest.mark.parametrize(
     "filters, error, match",
     [
-        (["draw == 0 & year > 2011", "age < 2015 | draw in [1, 2, 3]"], ValueError, "only supply one"),
-        (['year > 2010 & age < 5 & parameter == "cat1" & ' "draw==0 | draw==100"], ValueError, "only supply one"),
+        (
+            ["draw == 0 & year > 2011", "age < 2015 | draw in [1, 2, 3]"],
+            ValueError,
+            "only supply one",
+        ),
+        (
+            ['year > 2010 & age < 5 & parameter == "cat1" & ' "draw==0 | draw==100"],
+            ValueError,
+            "only supply one",
+        ),
         (["draw >= 10"], NotImplementedError, "only supported"),
         (["draw<5"], NotImplementedError, "only supported"),
     ],
@@ -529,12 +558,18 @@ def test__parse_draw_filters_fail(filters, error, match):
     ],
 )
 def test__parse_draw_filters_pass(draw_operator, draw_values):
-    draw_filter = f'draw{draw_operator}{draw_values if "in" in draw_operator else draw_values[0]}'
+    draw_filter = (
+        f'draw{draw_operator}{draw_values if "in" in draw_operator else draw_values[0]}'
+    )
     expected_cols = [f"draw_{d}" for d in draw_values] + ["value"]
 
     assert _parse_draw_filters([draw_filter]) == expected_cols
 
-    complicated_filter = [f"year > 2010 & age < 12", "other_col in [1, 2, 40]", "one_more > 10"]
+    complicated_filter = [
+        f"year > 2010 & age < 12",
+        "other_col in [1, 2, 40]",
+        "one_more > 10",
+    ]
     for i in range(len(complicated_filter)):
         filters = complicated_filter.copy()
         filters[i] += " | " + draw_filter

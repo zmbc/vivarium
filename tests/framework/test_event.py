@@ -26,7 +26,12 @@ def event_init():
 def test_proper_access(event_init):
     # Event attributes are meant to be read-only
     event_data = event_init["orig"]
-    e1 = Event(event_data["index"], event_data["user_data"], event_data["time"], event_data["step_size"])
+    e1 = Event(
+        event_data["index"],
+        event_data["user_data"],
+        event_data["time"],
+        event_data["step_size"],
+    )
 
     assert (event_data["index"] == e1.index).all()
     assert event_data["user_data"] == e1.user_data
@@ -41,7 +46,12 @@ def test_proper_access(event_init):
 
 def test_split_event(event_init):
     event_data = event_init["orig"]
-    e1 = Event(event_data["index"], event_data["user_data"], event_data["time"], event_data["step_size"])
+    e1 = Event(
+        event_data["index"],
+        event_data["user_data"],
+        event_data["time"],
+        event_data["step_size"],
+    )
 
     new_idx = event_init["new_val"]["index"]
     e2 = e1.split(new_idx)

@@ -81,8 +81,12 @@ class PluginConfigurationError(VivariumError):
 
 class PluginManager:
     def __init__(self, plugin_configuration=None):
-        self._plugin_configuration = ConfigTree(DEFAULT_PLUGINS["plugins"], layers=["base", "override"])
-        self._plugin_configuration.update(plugin_configuration, source="initialization_args")
+        self._plugin_configuration = ConfigTree(
+            DEFAULT_PLUGINS["plugins"], layers=["base", "override"]
+        )
+        self._plugin_configuration.update(
+            plugin_configuration, source="initialization_args"
+        )
         self._plugins = {}
 
     def get_plugin(self, name):
@@ -96,18 +100,28 @@ class PluginManager:
         return self._plugins[name]["builder_interface"]
 
     def get_core_controllers(self):
-        core_components = [name for name in self._plugin_configuration["required"].keys()] + list(_MANAGERS.keys())
+        core_components = [
+            name for name in self._plugin_configuration["required"].keys()
+        ] + list(_MANAGERS.keys())
         return {name: self.get_plugin(name) for name in core_components}
 
     def get_core_interfaces(self):
-        core_components = [name for name in self._plugin_configuration["required"].keys()] + list(_MANAGERS.keys())
+        core_components = [
+            name for name in self._plugin_configuration["required"].keys()
+        ] + list(_MANAGERS.keys())
         return {name: self.get_plugin_interface(name) for name in core_components}
 
     def get_optional_controllers(self):
-        return {name: self.get_plugin(name) for name in self._plugin_configuration["optional"].keys()}
+        return {
+            name: self.get_plugin(name)
+            for name in self._plugin_configuration["optional"].keys()
+        }
 
     def get_optional_interfaces(self):
-        return {name: self.get_plugin_interface(name) for name in self._plugin_configuration["optional"].keys()}
+        return {
+            name: self.get_plugin_interface(name)
+            for name in self._plugin_configuration["optional"].keys()
+        }
 
     def _get(self, name):
         if name not in self._plugins:
@@ -120,13 +134,17 @@ class PluginManager:
         try:
             controller = import_by_path(plugin["controller"])()
         except ValueError:
-            raise PluginConfigurationError(f'Invalid plugin specification {plugin["controller"]}')
+            raise PluginConfigurationError(
+                f'Invalid plugin specification {plugin["controller"]}'
+            )
 
         if plugin["builder_interface"] is not None:
             try:
                 interface = import_by_path(plugin["builder_interface"])(controller)
             except ValueError:
-                raise PluginConfigurationError(f'Invalid plugin specification {plugin["builder_interface"]}')
+                raise PluginConfigurationError(
+                    f'Invalid plugin specification {plugin["builder_interface"]}'
+                )
         else:
             interface = None
 

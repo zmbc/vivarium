@@ -88,7 +88,9 @@ class CustomException(Exception):
     pass
 
 
-@pytest.mark.parametrize("test_input", [KeyboardInterrupt, RuntimeError, CustomException])
+@pytest.mark.parametrize(
+    "test_input", [KeyboardInterrupt, RuntimeError, CustomException]
+)
 def test_handle_exceptions(test_input):
     def raise_me(ex):
         raise ex

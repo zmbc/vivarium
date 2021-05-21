@@ -1,9 +1,18 @@
 import pytest
 
 from vivarium.framework.configuration import build_simulation_configuration
-from vivarium.framework.components.manager import ComponentManager, ComponentConfigError, OrderedComponentSet
+from vivarium.framework.components.manager import (
+    ComponentManager,
+    ComponentConfigError,
+    OrderedComponentSet,
+)
 
-from .mocks import MockComponentA, MockComponentB, MockGenericComponent, NamelessComponent
+from .mocks import (
+    MockComponentA,
+    MockComponentB,
+    MockGenericComponent,
+    NamelessComponent,
+)
 
 
 def test_ComponentSet_add():
@@ -182,7 +191,9 @@ def test_setup_components(mocker):
     assert mock_a.builder_used_for_setup is None  # class has no setup method
     assert mock_b.builder_used_for_setup is builder
 
-    builder.value.register_value_modifier.assert_called_once_with("metrics", mock_b.metrics)
+    builder.value.register_value_modifier.assert_called_once_with(
+        "metrics", mock_b.metrics
+    )
 
 
 def test_apply_configuration_defaults():
@@ -255,7 +266,11 @@ def test_add_components():
 
 
 @pytest.mark.parametrize(
-    "components", ([MockComponentA("Eric"), MockComponentB("half", "a", "bee")], [MockComponentA("Eric")])
+    "components",
+    (
+        [MockComponentA("Eric"), MockComponentB("half", "a", "bee")],
+        [MockComponentA("Eric")],
+    ),
 )
 def test_ComponentManager_add_components(components):
     config = build_simulation_configuration()
@@ -292,7 +307,9 @@ def test_ComponentManager_add_components_duplicated(components):
         cm.add_components(components)
 
 
-@pytest.mark.parametrize("components", ([NamelessComponent()], [NamelessComponent(), MockComponentA()]))
+@pytest.mark.parametrize(
+    "components", ([NamelessComponent()], [NamelessComponent(), MockComponentA()])
+)
 def test_ComponentManager_add_components_unnamed(components):
     config = build_simulation_configuration()
     cm = ComponentManager()

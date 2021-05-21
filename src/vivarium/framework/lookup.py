@@ -134,7 +134,9 @@ class ScalarTable:
     """
 
     def __init__(
-        self, values: Union[List[ScalarValue], Tuple[ScalarValue]], value_columns: Union[List[str], Tuple[str]]
+        self,
+        values: Union[List[ScalarValue], Tuple[ScalarValue]],
+        value_columns: Union[List[str], Tuple[str]],
     ):
 
         self.values = values
@@ -155,9 +157,17 @@ class ScalarTable:
 
         """
         if not isinstance(self.values, (list, tuple)):
-            values = pd.Series(self.values, index=index, name=self.value_columns[0] if self.value_columns else None)
+            values = pd.Series(
+                self.values,
+                index=index,
+                name=self.value_columns[0] if self.value_columns else None,
+            )
         else:
-            values = dict(zip(self.value_columns, [pd.Series(v, index=index) for v in self.values]))
+            values = dict(
+                zip(
+                    self.value_columns, [pd.Series(v, index=index) for v in self.values]
+                )
+            )
         return pd.DataFrame(values)
 
     def __repr__(self):
@@ -203,7 +213,9 @@ class LookupTable:
         if isinstance(data, (Number, datetime, timedelta, list, tuple)):
             self._table = ScalarTable(data, value_columns)
         else:
-            view_columns = sorted((set(key_columns) | set(parameter_columns)) - {"year"}) + ["tracked"]
+            view_columns = sorted(
+                (set(key_columns) | set(parameter_columns)) - {"year"}
+            ) + ["tracked"]
             self._table = InterpolatedTable(
                 data,
                 population_view(view_columns),
@@ -270,7 +282,9 @@ def validate_parameters(
 
     if isinstance(data, (list, tuple)):
         if not value_columns:
-            raise ValueError(f"To invoke scalar view with multiple values, you must supply value_columns")
+            raise ValueError(
+                f"To invoke scalar view with multiple values, you must supply value_columns"
+            )
         if len(value_columns) != len(data):
             raise ValueError(
                 f"The number of value columns must match the number of values."
@@ -288,7 +302,9 @@ def validate_parameters(
             )
 
         if value_columns:
-            data_value_columns = data.columns.difference(set(key_columns) | set(all_parameter_columns))
+            data_value_columns = data.columns.difference(
+                set(key_columns) | set(all_parameter_columns)
+            )
             if set(value_columns) != set(data_value_columns):
                 raise ValueError(
                     f"The value columns you supplied: {value_columns} do not match "
@@ -306,7 +322,9 @@ class LookupTableManager:
 
     """
 
-    configuration_defaults = {"interpolation": {"order": 0, "validate": True, "extrapolate": True}}
+    configuration_defaults = {
+        "interpolation": {"order": 0, "validate": True, "extrapolate": True}
+    }
 
     @property
     def name(self):
@@ -332,7 +350,9 @@ class LookupTableManager:
     ) -> LookupTable:
         """Construct a lookup table from input data."""
         table = self._build_table(data, key_columns, parameter_columns, value_columns)
-        self._add_constraint(table._call, restrict_during=["initialization", "setup", "post_setup"])
+        self._add_constraint(
+            table._call, restrict_during=["initialization", "setup", "post_setup"]
+        )
         return table
 
     def _build_table(self, data, key_columns, parameter_columns, value_columns):
@@ -415,4 +435,6 @@ class LookupTableInterface:
         -------
             LookupTable
         """
-        return self._manager.build_table(data, key_columns, parameter_columns, value_columns)
+        return self._manager.build_table(
+            data, key_columns, parameter_columns, value_columns
+        )

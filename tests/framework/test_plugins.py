@@ -1,12 +1,18 @@
 import pytest
 
-from vivarium.framework.plugins import PluginManager, PluginConfigurationError, DEFAULT_PLUGINS
+from vivarium.framework.plugins import (
+    PluginManager,
+    PluginConfigurationError,
+    DEFAULT_PLUGINS,
+)
 from vivarium.framework.time import DateTimeClock, TimeInterface
 from vivarium.framework.components import ComponentConfigurationParser
 
 from .components.mocks import MockComponentA
 
-plugin_config = {"george": {"controller": "big_brother", "builder_interface": "minipax"}}
+plugin_config = {
+    "george": {"controller": "big_brother", "builder_interface": "minipax"}
+}
 
 
 @pytest.fixture
@@ -19,7 +25,10 @@ def test_PluginManager_initializaiton(model_specification):
     model_specification.plugins.optional.update(plugin_config)
     plugin_manager = PluginManager(model_specification.plugins)
 
-    assert model_specification.plugins.to_dict() == plugin_manager._plugin_configuration.to_dict()
+    assert (
+        model_specification.plugins.to_dict()
+        == plugin_manager._plugin_configuration.to_dict()
+    )
     assert not plugin_manager._plugins
 
 
@@ -30,7 +39,10 @@ def test_PluginManager__lookup_fail(test_plugin_manager):
 
 def test_PluginManager__lookup(test_plugin_manager):
     for plugin in ["component_manager", "clock", "component_configuration_parser"]:
-        assert test_plugin_manager._lookup(plugin).to_dict() == DEFAULT_PLUGINS["plugins"]["required"][plugin]
+        assert (
+            test_plugin_manager._lookup(plugin).to_dict()
+            == DEFAULT_PLUGINS["plugins"]["required"][plugin]
+        )
 
     assert test_plugin_manager._lookup("george").to_dict() == plugin_config["george"]
 
