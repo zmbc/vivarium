@@ -118,7 +118,7 @@ class InteractiveContext(SimulationContext):
         if not isinstance(end_time, type(self._clock.time)):
             raise ValueError(f"Provided time must be an instance of {type(self._clock.time)}")
 
-        iterations = int(ceil((end_time - self._clock.time)/self._clock.step_size))
+        iterations = int(ceil((end_time - self._clock.time) / self._clock.step_size))
         self.take_steps(number_of_steps=iterations, with_logging=with_logging)
         assert self._clock.time - self._clock.step_size < end_time <= self._clock.time
         return iterations
@@ -139,10 +139,10 @@ class InteractiveContext(SimulationContext):
 
         """
         if not isinstance(number_of_steps, int):
-            raise ValueError('Number of steps must be an integer.')
+            raise ValueError("Number of steps must be an integer.")
 
         if run_from_ipython() and with_logging:
-            for _ in log_progress(range(number_of_steps), name='Step'):
+            for _ in log_progress(range(number_of_steps), name="Step"):
                 self.step(step_size)
         else:
             for _ in range(number_of_steps):
@@ -185,7 +185,7 @@ class InteractiveContext(SimulationContext):
 
         """
         if event_type not in self._events:
-            raise ValueError(f'No event {event_type} in system.')
+            raise ValueError(f"No event {event_type} in system.")
         return self._events.get_listeners(event_type)
 
     def get_emitter(self, event_type: str) -> Callable:
@@ -201,7 +201,7 @@ class InteractiveContext(SimulationContext):
 
         """
         if event_type not in self._events:
-            raise ValueError(f'No event {event_type} in system.')
+            raise ValueError(f"No event {event_type} in system.")
         return self._events.get_emitter(event_type)
 
     def list_components(self) -> Dict[str, Any]:
@@ -231,4 +231,4 @@ class InteractiveContext(SimulationContext):
         return self._component_manager.get_component(name)
 
     def __repr__(self):
-        return 'InteractiveContext()'
+        return "InteractiveContext()"

@@ -42,6 +42,7 @@ class Event(NamedTuple):
     to respond to them.
 
     """
+
     #: An index into the population table containing all simulants affected
     #: by this event.
     index: pd.Index
@@ -53,7 +54,7 @@ class Event(NamedTuple):
     #: The current step size at the time of the event.
     step_size: Timedelta
 
-    def split(self, new_index: pd.Index) -> 'Event':
+    def split(self, new_index: pd.Index) -> "Event":
         """Create a copy of this event with a new index.
 
         This function should be used to emit an event in a new
@@ -85,7 +86,7 @@ class EventChannel:
     """A named subscription channel that passes events to event listeners."""
 
     def __init__(self, manager, name):
-        self.name = f'event_channel_{name}'
+        self.name = f"event_channel_{name}"
         self.manager = manager
         self.listeners = [[] for _ in range(10)]
 
@@ -107,9 +108,7 @@ class EventChannel:
         """
         if not user_data:
             user_data = {}
-        e = Event(index, user_data,
-                  self.manager.clock() + self.manager.step_size(),
-                  self.manager.step_size())
+        e = Event(index, user_data, self.manager.clock() + self.manager.step_size(), self.manager.step_size())
 
         for priority_bucket in self.listeners:
             for listener in priority_bucket:
@@ -156,12 +155,12 @@ class EventManager:
         self.clock = builder.time.clock()
         self.step_size = builder.time.step_size()
 
-        builder.event.register_listener('post_setup', self.on_post_setup)
+        builder.event.register_listener("post_setup", self.on_post_setup)
         self.add_handlers = builder.lifecycle.add_handlers
         self.add_constraint = builder.lifecycle.add_constraint
 
-        builder.lifecycle.add_constraint(self.get_emitter, allow_during=['setup', 'simulation_end', 'report'])
-        builder.lifecycle.add_constraint(self.register_listener, allow_during=['setup'])
+        builder.lifecycle.add_constraint(self.get_emitter, allow_during=["setup", "simulation_end", "report"])
+        builder.lifecycle.add_constraint(self.register_listener, allow_during=["setup"])
 
     def on_post_setup(self, event):
         for name, channel in self._event_types.items():

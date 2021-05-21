@@ -29,6 +29,7 @@ from .manager import ComponentConfigError
 
 class ParsingError(ComponentConfigError):
     """Error raised when component configurations are not specified correctly."""
+
     pass
 
 
@@ -162,10 +163,10 @@ def parse_component_config_to_list(component_config: Dict[str, Union[Dict, List]
 
     def _process_level(level, prefix):
         if not level:
-            raise ParsingError(f'Check your configuration. Component {prefix} should not be left empty with the header')
+            raise ParsingError(f"Check your configuration. Component {prefix} should not be left empty with the header")
 
         if isinstance(level, list):
-            return ['.'.join(prefix + [child]) for child in level]
+            return [".".join(prefix + [child]) for child in level]
 
         component_list = []
         for name, child in level.items():
@@ -192,8 +193,8 @@ def prep_components(component_list: Union[List[str], Tuple[str]]) -> List[Tuple[
     """
     components = []
     for c in component_list:
-        path, args_plus = c.split('(')
-        cleaned_args = clean_args(args_plus[:-1].split(','), path)
+        path, args_plus = c.split("(")
+        cleaned_args = clean_args(args_plus[:-1].split(","), path)
         components.append((path, cleaned_args))
     return components
 
