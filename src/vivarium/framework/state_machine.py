@@ -56,7 +56,7 @@ def _next_state(index: pd.Index,
                 raise ValueError('Invalid transition output: {}'.format(output))
 
 
-def _groupby_new_state(index: pd.Index, outputs: List , decisions: pd.Series) -> List[Tuple[str, pd.Index]]:
+def _groupby_new_state(index: pd.Index, outputs: List, decisions: pd.Series) -> List[Tuple[str, pd.Index]]:
     """Groups the simulants in the index by their new output state.
 
     Parameters
@@ -172,7 +172,7 @@ class State:
         A container for potential transitions out of this state.
 
     """
-    def __init__(self, state_id):
+    def __init__(self, state_id: str):
         self.state_id = state_id
         self.transition_set = TransitionSet(self.name)
         self._model = None
